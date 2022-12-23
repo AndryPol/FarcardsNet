@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FarcardContract", "FarcardContract\FarcardContract.csproj", "{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFarcardNet", "TestFarcardNet\TestFarcardNet.csproj", "{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TunnelFarcard6", "TunnelFarcard6\TunnelFarcard6.csproj", "{D8BFD03D-72A5-4F44-A376-B9B064342B32}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Debug|Any CPU.Build.0 = Debug|x86
+		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Debug|x86.ActiveCfg = Debug|x86
+		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Debug|x86.Build.0 = Debug|x86
+		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Release|Any CPU.ActiveCfg = Release|x86
+		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Release|Any CPU.Build.0 = Release|x86
+		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Release|x86.ActiveCfg = Release|x86
+		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Release|x86.Build.0 = Release|x86
+		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Debug|Any CPU.Build.0 = Debug|x86
+		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Debug|x86.ActiveCfg = Debug|x86
+		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Debug|x86.Build.0 = Debug|x86
+		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Release|Any CPU.ActiveCfg = Release|x86
+		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Release|Any CPU.Build.0 = Release|x86
+		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Release|x86.ActiveCfg = Release|x86
+		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Release|x86.Build.0 = Release|x86
+		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Debug|Any CPU.Build.0 = Debug|x86
+		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Debug|x86.ActiveCfg = Debug|x86
+		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Debug|x86.Build.0 = Debug|x86
+		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Release|Any CPU.ActiveCfg = Release|x86
+		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Release|Any CPU.Build.0 = Release|x86
+		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Release|x86.ActiveCfg = Release|x86
+		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6256C82D-D206-44F9-BBE9-73CE22DCEF26}
+	EndGlobalSection
+EndGlobal
