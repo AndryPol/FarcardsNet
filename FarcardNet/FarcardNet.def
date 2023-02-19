@@ -1,0 +1,14 @@
+LIBRARY
+
+
+EXPORTS
+Init 
+Done 
+GetCardInfoEx 
+TransactionsEx
+GetCardImageEx
+FindEmail
+FindCardsL
+FindAccountsByKind
+AnyInfo
+GetDiscLevelInfoL

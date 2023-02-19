@@ -3,47 +3,75 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FarcardContract", "FarcardContract\FarcardContract.csproj", "{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TunnelFarcard6", "TunnelFarcard6\TunnelFarcard6.csproj", "{D8BFD03D-72A5-4F44-A376-B9B064342B32}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D9041360-CBD5-4A9A-9E60-03934E021ABF} = {D9041360-CBD5-4A9A-9E60-03934E021ABF}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFarcardNet", "TestFarcardNet\TestFarcardNet.csproj", "{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpFarcardService", "HttpFarcardService\HttpFarcardService.csproj", "{C72B0798-7489-421C-9592-1AD8B9B9F4C6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D9041360-CBD5-4A9A-9E60-03934E021ABF} = {D9041360-CBD5-4A9A-9E60-03934E021ABF}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TunnelFarcard6", "TunnelFarcard6\TunnelFarcard6.csproj", "{D8BFD03D-72A5-4F44-A376-B9B064342B32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Farcards", "Farcards\Farcards.csproj", "{2DD2ABC4-85E1-47B3-AF62-42E9F99D8DB5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D9041360-CBD5-4A9A-9E60-03934E021ABF} = {D9041360-CBD5-4A9A-9E60-03934E021ABF}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpFarcard6Client", "HttpFarcard6Client\HttpFarcard6Client.csproj", "{FA68D29D-3CE5-443C-9579-86A09A9C2EA5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D9041360-CBD5-4A9A-9E60-03934E021ABF} = {D9041360-CBD5-4A9A-9E60-03934E021ABF}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugin", "Plugin", "{78B11874-DB9A-4D44-98A9-9349D75CBCF4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FarcardNet", "FarcardNet\FarcardNet.vcxproj", "{AF87E641-22A0-4C6B-B5B7-6D846275355F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FarcardContract", "FarcardContract\FarcardContract.csproj", "{D9041360-CBD5-4A9A-9E60-03934E021ABF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestFarcardNet", "TestFarcard\TestFarcardNet.csproj", "{8BE8F17D-3D98-4D25-8263-D8875040C73C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
-		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Debug|Any CPU.Build.0 = Debug|x86
-		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Debug|x86.ActiveCfg = Debug|x86
-		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Debug|x86.Build.0 = Debug|x86
-		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Release|Any CPU.ActiveCfg = Release|x86
-		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Release|Any CPU.Build.0 = Release|x86
-		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Release|x86.ActiveCfg = Release|x86
-		{9C2F19ED-E262-4431-B4C2-ADB4E6A49728}.Release|x86.Build.0 = Release|x86
-		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Debug|Any CPU.Build.0 = Debug|x86
-		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Debug|x86.ActiveCfg = Debug|x86
-		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Debug|x86.Build.0 = Debug|x86
-		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Release|Any CPU.ActiveCfg = Release|x86
-		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Release|Any CPU.Build.0 = Release|x86
-		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Release|x86.ActiveCfg = Release|x86
-		{6B340A42-AB4E-4B92-AE2C-15563BABD1B6}.Release|x86.Build.0 = Release|x86
-		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Debug|Any CPU.Build.0 = Debug|x86
 		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Debug|x86.ActiveCfg = Debug|x86
 		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Debug|x86.Build.0 = Debug|x86
-		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Release|Any CPU.ActiveCfg = Release|x86
-		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Release|Any CPU.Build.0 = Release|x86
 		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Release|x86.ActiveCfg = Release|x86
 		{D8BFD03D-72A5-4F44-A376-B9B064342B32}.Release|x86.Build.0 = Release|x86
+		{C72B0798-7489-421C-9592-1AD8B9B9F4C6}.Debug|x86.ActiveCfg = Debug|x86
+		{C72B0798-7489-421C-9592-1AD8B9B9F4C6}.Debug|x86.Build.0 = Debug|x86
+		{C72B0798-7489-421C-9592-1AD8B9B9F4C6}.Release|x86.ActiveCfg = Release|x86
+		{C72B0798-7489-421C-9592-1AD8B9B9F4C6}.Release|x86.Build.0 = Release|x86
+		{2DD2ABC4-85E1-47B3-AF62-42E9F99D8DB5}.Debug|x86.ActiveCfg = Debug|x86
+		{2DD2ABC4-85E1-47B3-AF62-42E9F99D8DB5}.Debug|x86.Build.0 = Debug|x86
+		{2DD2ABC4-85E1-47B3-AF62-42E9F99D8DB5}.Release|x86.ActiveCfg = Release|x86
+		{2DD2ABC4-85E1-47B3-AF62-42E9F99D8DB5}.Release|x86.Build.0 = Release|x86
+		{FA68D29D-3CE5-443C-9579-86A09A9C2EA5}.Debug|x86.ActiveCfg = Debug|x86
+		{FA68D29D-3CE5-443C-9579-86A09A9C2EA5}.Debug|x86.Build.0 = Debug|x86
+		{FA68D29D-3CE5-443C-9579-86A09A9C2EA5}.Release|x86.ActiveCfg = Release|x86
+		{FA68D29D-3CE5-443C-9579-86A09A9C2EA5}.Release|x86.Build.0 = Release|x86
+		{AF87E641-22A0-4C6B-B5B7-6D846275355F}.Debug|x86.ActiveCfg = Debug|Win32
+		{AF87E641-22A0-4C6B-B5B7-6D846275355F}.Debug|x86.Build.0 = Debug|Win32
+		{AF87E641-22A0-4C6B-B5B7-6D846275355F}.Release|x86.ActiveCfg = Release|Win32
+		{AF87E641-22A0-4C6B-B5B7-6D846275355F}.Release|x86.Build.0 = Release|Win32
+		{D9041360-CBD5-4A9A-9E60-03934E021ABF}.Debug|x86.ActiveCfg = Debug|x86
+		{D9041360-CBD5-4A9A-9E60-03934E021ABF}.Debug|x86.Build.0 = Debug|x86
+		{D9041360-CBD5-4A9A-9E60-03934E021ABF}.Release|x86.ActiveCfg = Release|x86
+		{D9041360-CBD5-4A9A-9E60-03934E021ABF}.Release|x86.Build.0 = Release|x86
+		{8BE8F17D-3D98-4D25-8263-D8875040C73C}.Debug|x86.ActiveCfg = Debug|x86
+		{8BE8F17D-3D98-4D25-8263-D8875040C73C}.Debug|x86.Build.0 = Debug|x86
+		{8BE8F17D-3D98-4D25-8263-D8875040C73C}.Release|x86.ActiveCfg = Release|x86
+		{8BE8F17D-3D98-4D25-8263-D8875040C73C}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D8BFD03D-72A5-4F44-A376-B9B064342B32} = {78B11874-DB9A-4D44-98A9-9349D75CBCF4}
+		{FA68D29D-3CE5-443C-9579-86A09A9C2EA5} = {78B11874-DB9A-4D44-98A9-9349D75CBCF4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6256C82D-D206-44F9-BBE9-73CE22DCEF26}

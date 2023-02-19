@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net48</TargetFramework>
+		<PlatformTarget>x86</PlatformTarget>
+		<Platforms>x86</Platforms>
+		<OutputType>Exe</OutputType>
+		<StartupObject>HttpFarcardService.Program</StartupObject>
+		
+	</PropertyGroup>
+	<ItemGroup>
+	  <PackageReference Include="System.Reactive" Version="5.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\FarcardContract\FarcardContract.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="System.Configuration.Install" />
+	  <Reference Include="System.ServiceModel" />
+	  <Reference Include="System.ServiceProcess" />
+	  <Reference Include="System.Windows.Forms" />
+	</ItemGroup>
+
+
+	
+
+	
+</Project>

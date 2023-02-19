@@ -7,7 +7,7 @@ namespace FarcardContract.Farcard5
 {
     public interface IFarcards5
     {
-        void Init_dll();
-        void Done_dll();
+        void Init();
+        void Done();
     }
 }

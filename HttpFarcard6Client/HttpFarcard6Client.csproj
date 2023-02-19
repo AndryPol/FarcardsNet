@@ -8,16 +8,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\FarcardContract\FarcardContract.csproj" />
+		<ProjectReference Include="..\FarcardContract\FarcardContract.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Reference Include="System.ComponentModel.Composition" />
+		<Reference Include="System.ComponentModel.Composition" />
+		<Reference Include="System.Net.Http" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Folder Include="Properties\" />
 	</ItemGroup>
-	
+
 
 </Project>

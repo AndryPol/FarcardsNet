@@ -1,23 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
 	<PropertyGroup>
 		<TargetFramework>net48</TargetFramework>
 		<PlatformTarget>x86</PlatformTarget>
 		<Platforms>x86</Platforms>
-
+		<OutputType>WinExe</OutputType>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\FarcardContract\FarcardContract.csproj" />
+		<ProjectReference Include="..\FarcardContract\FarcardContract.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Reference Include="System.ComponentModel.Composition" />
+		<Reference Include="System.ComponentModel.Composition" />
+		<Reference Include="System.Windows.Forms" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Properties\" />
-	</ItemGroup>
-	
 
 </Project>
