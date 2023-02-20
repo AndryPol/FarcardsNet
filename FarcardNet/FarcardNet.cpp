@@ -82,13 +82,13 @@ namespace FarcardNet {
 		try {
 			if (!Object::ReferenceEquals(_farcard6, nullptr))
 			{
-				CardInfoEx% cardInfo = CardInfoEx();
+				CardInfoEx^ cardInfo = gcnew CardInfoEx();
 				array<Byte>^ inpBuf = gcnew  array<Byte>(inpLen);
 				Marshal::Copy(pInpBuf, inpBuf, 0, inpLen);
-				res = _farcard6->GetCardInfoEx(card, restaurant, unitNo, % cardInfo, inpBuf, inpKind, outBuf, outKind);
+				res = _farcard6->GetCardInfoEx(card, restaurant, unitNo, cardInfo, inpBuf, inpKind, outBuf, outKind);
 				if (res == 0)
 				{
-					Marshal::StructureToPtr(% cardInfo, info, false);
+					Marshal::StructureToPtr(cardInfo, info, false);
 				}
 
 				outLen = outBuf != nullptr ? outBuf->Length : 0;
@@ -152,11 +152,11 @@ namespace FarcardNet {
 		try
 		{
 			if (!Object::ReferenceEquals(_farcard6, nullptr)) {
-				TextInfo% info = TextInfo();
-				res = _farcard6->GetCardImageEx(card, % info);
+				TextInfo^ info = gcnew TextInfo();
+				res = _farcard6->GetCardImageEx(card, info);
 				if (res == 0)
 				{
-					Marshal::StructureToPtr(% info, pInfo, false);
+					Marshal::StructureToPtr(info, pInfo, false);
 				}
 			}
 		}
@@ -180,10 +180,10 @@ namespace FarcardNet {
 		{
 			if (!Object::ReferenceEquals(_farcard6, nullptr))
 			{
-				HolderInfo% info = HolderInfo();
-				res = _farcard6->FindEmail(email, % info);
+				HolderInfo^ info = gcnew  HolderInfo();
+				res = _farcard6->FindEmail(email, info);
 				if (res == 0)
-					Marshal::StructureToPtr(% info, pInfo, false);
+					Marshal::StructureToPtr(info, pInfo, false);
 			}
 		}
 		catch (Exception^ ex)
@@ -285,10 +285,10 @@ namespace FarcardNet {
 		{
 			if (!Object::ReferenceEquals(_farcard6, nullptr))
 			{
-				DiscLevelInfo% info = DiscLevelInfo();
-				res = _farcard6->GetDiscLevelInfoL(account, % info);
+				DiscLevelInfo^ info = gcnew  DiscLevelInfo();
+				res = _farcard6->GetDiscLevelInfoL(account, info);
 				if (res == 0)
-					Marshal::StructureToPtr(% info, pInfo, false);
+					Marshal::StructureToPtr(info, pInfo, false);
 			}
 		}
 		catch (Exception^ ex)

@@ -17,7 +17,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="DefaultConfig\" />
 	  <Folder Include="Properties\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="DefaultConfig\HttpFarcardClientSettings.config">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 
 

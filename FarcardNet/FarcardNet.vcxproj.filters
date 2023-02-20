@@ -59,5 +59,6 @@
     <None Include="FarcardNet.def">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="DefaultConfig\FarcardNetSettings.config" />
   </ItemGroup>
 </Project>

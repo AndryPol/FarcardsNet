@@ -15,4 +15,14 @@
 		<Reference Include="System.Windows.Forms" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="DefaultConfig\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="DefaultConfig\FarcardsSettings.config">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
 </Project>

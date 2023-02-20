@@ -22,6 +22,12 @@
 	  <Reference Include="System.Windows.Forms" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Update="DefaultConfig\HttpFarcardServerSetting.config">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
 
 	
 
