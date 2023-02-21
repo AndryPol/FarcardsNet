@@ -4,6 +4,11 @@
 		<TargetFramework>net48</TargetFramework>
 		<PlatformTarget>x86</PlatformTarget>
 		<Platforms>x86</Platforms>
+		<Copyright>Copyright (C) 2023</Copyright>
+		<AssemblyVersion>1.0.0.1</AssemblyVersion>
+		<FileVersion>1.0.0.1</FileVersion>
+		<Company>AndryPol</Company>
+		<Description>Plugin by ExtDll</Description>
 
 	</PropertyGroup>
 

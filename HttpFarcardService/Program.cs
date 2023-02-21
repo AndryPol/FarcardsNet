@@ -21,39 +21,43 @@ namespace HttpFarcardService
                 WindowsPrincipal pricipal = new WindowsPrincipal(WindowsIdentity.GetCurrent());
                 bool hasAdministrativeRight = pricipal.IsInRole(WindowsBuiltInRole.Administrator);
 
-                if (commandLine.IsParam("i")|| commandLine.IsParam("u") ||
-                    commandLine.IsParam("install") || commandLine.IsParam("uninstall"))
+                if (Environment.UserInteractive)
                 {
                     if (!hasAdministrativeRight)
                     {
                         StartProcess(args);
                         return;
                     }
-                    var asi = new AssemblyInstaller(System.Reflection.Assembly.GetExecutingAssembly(), null);
-                    var savedState = new Dictionary<String, String>();
-                    if (commandLine.IsParam("i") || commandLine.IsParam("install"))
-                    {
-                        asi.Install(savedState);
-                        MessageBox.Show("Служба успешно установлена");
-                    }
-                    else
-                    {
-                        asi.Uninstall(savedState);
-                        MessageBox.Show("Служба Успешно удалена");
-                    }
-                    return;
-                }
 
-                if (!Environment.UserInteractive)
-                {
-                    ServiceBase.Run(new FarcardService());
-                }
-                else
-                {
+                    if (commandLine.IsParam("i") || commandLine.IsParam("u") ||
+                        commandLine.IsParam("install") || commandLine.IsParam("uninstall"))
+                    {
+
+                        var asi = new AssemblyInstaller(System.Reflection.Assembly.GetExecutingAssembly(), null);
+                        var savedState = new Dictionary<String, String>();
+                        if (commandLine.IsParam("i") || commandLine.IsParam("install"))
+                        {
+                            asi.Install(savedState);
+                            MessageBox.Show("Служба успешно установлена");
+                        }
+                        else
+                        {
+                            asi.Uninstall(savedState);
+                            MessageBox.Show("Служба Успешно удалена");
+                        }
+
+                        return;
+                    }
+
                     var s = new FarcardHttpService();
                     s.Start();
                     Console.ReadLine();
                     s.Stop();
+
+                }
+                else
+                {
+                    ServiceBase.Run(new FarcardService());
                 }
             }
             catch (Exception e)

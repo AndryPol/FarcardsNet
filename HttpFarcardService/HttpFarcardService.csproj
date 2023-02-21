@@ -5,6 +5,11 @@
 		<Platforms>x86</Platforms>
 		<OutputType>Exe</OutputType>
 		<StartupObject>HttpFarcardService.Program</StartupObject>
+		<Copyright>Copyright (C) 2023</Copyright>
+		<AssemblyVersion>1.0.0.1</AssemblyVersion>
+		<FileVersion>1.0.0.1</FileVersion>
+		<Company>AndryPol</Company>
+		<Description>Server by http transport</Description>
 		
 	</PropertyGroup>
 	<ItemGroup>
