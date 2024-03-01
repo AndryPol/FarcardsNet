@@ -15,7 +15,7 @@ namespace FarcardContract.Data.Farcard6
         private readonly UInt16 _size = 122;
         public UInt16 Sieze
         {
-            get { return 0; }
+            get { return 0; } 
             set { }
         }
         /// <summary>
