@@ -23,9 +23,9 @@ namespace FarcardContract.HttpData
                 if (node != null && node.Attributes != null)
                 {
                     T res = Activator.CreateInstance<T>();
-                    var props = typeof(T).GetProperties().Where(x => x.CanWrite && !x.Name.Equals("Item"));
+                    var props = typeof(T).GetProperties().Where(x => x.CanWrite && !x.Name.Equals("Item")).ToList();
                     if (onlySerializationAttr)
-                        props = props.Where(x => System.Attribute.IsDefined(x, typeof(XmlAnyAttributeAttribute)));
+                        props = props.Where(x => System.Attribute.IsDefined(x, typeof(XmlAnyAttributeAttribute))).ToList();
                     var attDic = props.ToDictionary(x => x, x => x.GetCustomAttributes(typeof(XmlAttributeAttribute), true)
                         .OfType<XmlAttributeAttribute>().Where(a => string.IsNullOrWhiteSpace(a.AttributeName)));
                     if (onlySerializationAttr)
@@ -116,7 +116,7 @@ namespace FarcardContract.HttpData
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
 
         }
@@ -140,7 +140,7 @@ namespace FarcardContract.HttpData
             if (foundNode == null && throwException)
             {
                 var msg = $"node [{name}] is null or does not exist";
-                _logger.GetLogger().Warn(msg);
+                _logger.Warn(msg);
                 throw new InvalidOperationException(msg);
             }
             return foundNode;
@@ -155,7 +155,7 @@ namespace FarcardContract.HttpData
             if (foundNodes == null && throwException)
             {
                 var msg = $"nodes [{name}] is null or does not exist";
-                _logger.GetLogger().Warn(msg);
+                _logger.Warn(msg);
                 throw new InvalidOperationException(msg);
             }
             return foundNodes;
@@ -174,7 +174,7 @@ namespace FarcardContract.HttpData
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
                 if (required)
                     throw new InvalidCastException($"value [{attrValue}] of attribute [{name}] is not belong to type {typeof(T).Name}");
             }
@@ -195,7 +195,7 @@ namespace FarcardContract.HttpData
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
                 if (required)
                     throw new InvalidCastException($"value [{attrValue}] of attribute [{name}] is not belong to type {type.Name}");
             }
@@ -207,14 +207,14 @@ namespace FarcardContract.HttpData
             if (node == null)
             {
                 var msg = "node is NULL";
-                _logger.GetLogger().Warn(msg);
+                _logger.Warn(msg);
                 throw new InvalidOperationException(msg);
             }
 
             if (node.Attributes == null)
             {
                 var msg = $"node [{node.Name}] have no attributes";
-                _logger.GetLogger().Warn(msg);
+                _logger.Warn(msg);
                 throw new InvalidOperationException(msg);
             }
 
@@ -235,7 +235,7 @@ namespace FarcardContract.HttpData
                 if (!required)
                     return null;
                 var msg = $"attribute [{name}] of node [{node.Name}] is NULL or does not exist";
-                _logger.GetLogger().Warn(msg);
+                _logger.Warn(msg);
                 throw new InvalidOperationException(msg);
             }
 

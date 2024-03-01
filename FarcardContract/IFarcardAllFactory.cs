@@ -1,21 +1,16 @@
-﻿using FarcardContract.Farcard6;
-using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
-using System.ComponentModel.Composition;
 using System.IO;
-using System.Linq;
-using System.Text;
 
-namespace FarcardContract.Farcard5
+namespace FarcardContract
 {
-    public class Farcards5Fabric
+    public class FarcardsAllFactory
     {
-        [Import(typeof(IFarcards5))]
+        [Import(typeof(IFarcards))]
 #pragma warning disable 0649
-        private IFarcards5 _processor;
+        private IFarcards _processor;
 #pragma warning restore 0649
-        public IFarcards5 GetProcessor(FileInfo path = null)
+        public IFarcards GetProcessor(FileInfo path = null)
         {
 
             var catalog = new AggregateCatalog();

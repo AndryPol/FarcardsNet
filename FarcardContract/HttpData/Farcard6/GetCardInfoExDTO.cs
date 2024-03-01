@@ -66,7 +66,7 @@ namespace FarcardContract.HttpData.Farcard6
             qry.AppendAttribute(nameof(Restaurant), Restaurant);
             qry.AppendAttribute(nameof(UnitNo), UnitNo);
 
-            if (InpBuf != null && InpBuf.Length > 0 && InpKind > 0)
+            if (InpBuf != null && InpBuf.Length > 0)
             {
                 var inpBuf = qry.AppendXmlBuffer(nameof(InpBuf), InpBuf);
 

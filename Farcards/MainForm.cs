@@ -7,8 +7,9 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows.Forms;
+using FarcardContract.Data.BufferData;
 using FarcardContract.Farcard6;
-
+using NLog.LayoutRenderers;
 
 
 namespace Farcards
@@ -27,9 +28,9 @@ namespace Farcards
         {
             _settings = FarcardsSettings.GetSettings();
             FileInfo finfo = null;
-            if(!string.IsNullOrWhiteSpace(_settings.ExtDll))
-             finfo = new FileInfo(_settings.ExtDll);
-            _farcard = new Farcards6Fabric().GetProcessor(finfo);
+            if (!string.IsNullOrWhiteSpace(_settings.ExtDll))
+                finfo = new FileInfo(_settings.ExtDll);
+            _farcard = new Farcards6Factory().GetProcessor(finfo);
             _farcard.Init();
         }
 
@@ -49,9 +50,7 @@ namespace Farcards
             {
                 var info = new CardInfoEx();
 
-                byte[] outBuf = new byte[] { };
-                BuffKind outKind;
-                var res = _farcard.GetCardInfoEx((long)CardNumber.Value, (uint)RestCode.Value, (uint)stationCode.Value, ref info, GetBytesTestInputBuff(), BuffKind.Xml, out outBuf, out outKind);
+                var res = _farcard.GetCardInfoEx((long)CardNumber.Value, (uint)RestCode.Value, (uint)stationCode.Value, ref info, GetBytesTestInputBuff(), BuffKind.Xml, out var outBuf, out var outKind);
                 if (outBuf != null && outKind == BuffKind.Xml)
                 {
                     var xml = Encoding.UTF8.GetString(outBuf);
@@ -67,10 +66,6 @@ info: {info.ToStringLog()}");
         {
             if (_farcard != null)
             {
-
-                byte[] outBuf = null;
-                BuffKind outKind = 0;
-
                 var transactionInfos = new List<TransactionInfoEx>();
                 for (int i = 0; i < 3; i++)
                 {
@@ -82,13 +77,13 @@ info: {info.ToStringLog()}");
                         RKDate = DateTime.Now,
                         Summa = 100m,
                         Restaurant = (ushort)RestCode.Value,
-                        RKUni = (byte)stationCode.Value,
+                        RKUnit = (byte)stationCode.Value,
                         RKCheck = 1,
                         Kind = (TransactType)i
                     };
                     transactionInfos.Add(tr);
                 }
-                int res = _farcard.TransactionsEx(transactionInfos, GetBytesTestInputBuff(), BuffKind.Xml, out outBuf, out outKind);
+                int res = _farcard.TransactionsEx(transactionInfos, GetBytesTestInputBuff(), BuffKind.Xml, out var outBuf, out var outKind);
                 if (outBuf != null && outKind == BuffKind.Xml)
                 {
                     string xml = Encoding.UTF8.GetString(outBuf);
@@ -185,6 +180,24 @@ info: {info.ToStringLog()}");
                     CardNumber.Value = holderInfo.Card;
                 MessageBox.Show($@"res: {res}
 info: {holderInfo.ToStringLog()}");
+            }
+        }
+
+        private void TestCheckButton_Click(object sender, EventArgs e)
+        {
+            var opfd = new OpenFileDialog();
+            opfd.Multiselect = false;
+            opfd.Filter = "*.xml|*.xml";
+            var result = opfd.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
+                var path = opfd.FileName;
+                var xml = File.ReadAllText(opfd.FileName);
+                xml = Encoding.UTF8.GetString(Encoding.GetEncoding("Windows-1251").GetBytes(xml));
+                var check = Serializer.DeSerializeObject<Check>(xml);
+                var resultXml = Serializer.SerializeObject(check);
+                XmlViewer.ShowXml(resultXml);
             }
         }
     }

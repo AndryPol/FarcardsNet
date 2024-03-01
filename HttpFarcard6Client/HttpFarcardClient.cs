@@ -5,13 +5,16 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Runtime;
 using System.Security.Authentication;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using FarcardContract;
 using FarcardContract.Data;
+using FarcardContract.Data.BufferData;
 using FarcardContract.Data.Farcard6;
 using FarcardContract.Farcard6;
 using FarcardContract.HttpData.Farcard6;
@@ -22,12 +25,16 @@ namespace HttpFarcard6Client
     public class HttpFarcardClient : IFarcards6, IDisposable
     {
 
-        private HttpFarcardClientSettings _settings;
+        private readonly HttpFarcardClientSettings _settings;
 
-        private Logger<HttpFarcardClient> _logger;
+        private readonly Logger<HttpFarcardClient> _logger;
 
-        HttpClient GetNewClient()
+        private HttpClient _httpClient;
+
+        HttpClient GetHttpClient()
         {
+            if (_httpClient != null)
+            { return _httpClient; }
             var proxySettings = _settings.ProxySettings;
             var handler = new HttpClientHandler();
             handler.ServerCertificateCustomValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
@@ -35,17 +42,19 @@ namespace HttpFarcard6Client
             handler.UseProxy = proxySettings.UseProxy;
             if (proxySettings.UseProxy)
             {
-                var proxy = new WebProxy(new Uri(proxySettings.Server));
-                proxy.UseDefaultCredentials = proxySettings.BasicAuthentication;
+                var proxy = new WebProxy(new Uri($"{proxySettings.Server}:{proxySettings.Port}"))
+                {
+                    UseDefaultCredentials = proxySettings.BasicAuthentication
+                };
                 if (!proxySettings.BasicAuthentication)
                     proxy.Credentials =
                         new NetworkCredential(proxySettings.Username,
                             proxySettings.Password);
             }
-            var client = new HttpClient(handler);
+            _httpClient = new HttpClient(handler);
             var address = new Uri(_settings.Address);
-            client.BaseAddress = address;
-            return client;
+            _httpClient.BaseAddress = address;
+            return _httpClient;
         }
 
         public HttpFarcardClient()
@@ -58,11 +67,12 @@ namespace HttpFarcard6Client
         {
             try
             {
-
+                var assembly = this.GetType().Assembly;
+                _logger.Trace($"init {assembly.GetName().Name}, ver {assembly.GetName().Version}");
             }
             catch (Exception ex)
             {
-
+                _logger.Error(ex);
             }
         }
 
@@ -70,11 +80,12 @@ namespace HttpFarcard6Client
         {
             try
             {
-
+                var assembly = this.GetType().Assembly;
+                _logger.Trace($"done {assembly.GetName().Name}, ver {assembly.GetName().Version}");
             }
             catch (Exception ex)
             {
-
+                _logger.Error(ex);
             }
         }
 
@@ -86,44 +97,75 @@ namespace HttpFarcard6Client
             int res = 1;
             try
             {
-                using (var client = GetNewClient())
+
+                var encoding = Encoding.UTF8;
+
+                _logger.Trace($"GetCardInfoEx card: {card} rest:{restaurant} unit:{unitNo} ");
+                _logger.Trace($"Info:{cardInfo.ToStringLog()} ");
+                _logger.Trace($"InpKind:{inpKind}");
+                _logger.Trace($"Buff:{encoding.GetString(inpBuf)}");
+
+
+                var req = new GetCardInfoExDTORequest(card, restaurant, unitNo, inpBuf, (ushort)inpKind);
+
+                var reqContent = (!_settings.Json) ? new StringContent(req.ToXml(encoding), encoding, "text/xml") :
+                    new StringContent(req.ToJson(), encoding, "text/json");
+
+                _logger.Trace("GetHttpClient");
+                var client = GetHttpClient();
+
+                var reqStr = Task.Run(async () =>
+                        await reqContent.ReadAsStringAsync()
+                        .ConfigureAwait(false))
+                    .GetAwaiter()
+                    .GetResult();
+
+                _logger.Trace($"Req:{reqStr}");
+
+                _logger.Trace("GetResponse");
+                var httpResponse = Task.Run(async () =>
+                        await client.PostAsync(_settings.GetCardInfoEx, reqContent)
+                        .ConfigureAwait(false))
+                    .GetAwaiter()
+                    .GetResult();
+                _logger.Trace($"Url{httpResponse.RequestMessage.RequestUri}");
+                _logger.Trace($"Code:{httpResponse.StatusCode} Reason:{httpResponse.ReasonPhrase}");
+
+                if (!httpResponse.IsSuccessStatusCode)
                 {
-                    var encoding = Encoding.UTF8;
-                    var req = new GetCardInfoExDTORequest(card, restaurant, unitNo, inpBuf, (ushort)inpKind);
 
-                    var reqContent = (!_settings.Json) ? new StringContent(req.ToXml(encoding), encoding, "text/xml") :
-                        new StringContent(req.ToJson(), encoding, "text/json");
-
-                    var httpResponse = Task.Run(async () => await client.PostAsync(_settings.GetCardInfoEx, reqContent)
-                        .ConfigureAwait(false)).GetAwaiter().GetResult();
-                    if (!httpResponse.IsSuccessStatusCode)
+                    if (httpResponse.Content.Headers.ContentLength > 0 &&
+                        httpResponse.Content.Headers.ContentType.MediaType.Contains("plain"))
                     {
-                        if (httpResponse.Content.Headers.ContentLength > 0 &&
-                            httpResponse.Content.Headers.ContentType.MediaType.Contains("plain"))
-                        {
-                            var message = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
-                                .ConfigureAwait(false)).GetAwaiter().GetResult();
-                            throw new Exception(message);
-                        }
-                        throw new Exception(httpResponse.ReasonPhrase);
+                        _logger.Trace($"ErrorRead");
+                        var message = Task.Run(async () =>
+                                await httpResponse.Content.ReadAsStringAsync()
+                                .ConfigureAwait(false))
+                            .GetAwaiter()
+                            .GetResult();
+                        _logger.Trace($"ErrorMessage:{message}");
+                        throw new Exception(message);
                     }
-
-                    var mt = httpResponse.Content.Headers.ContentType.MediaType;
-                    if (!mt.Contains("xml") && !mt.Contains("json"))
-                        throw new Exception("Error parsing request");
-
-                    var respContent = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
-                        .ConfigureAwait(false)).GetAwaiter().GetResult();
-
-                    GetCardInfoExDTOResponse response = (mt.Contains("xml")) ?
-                        response = GetCardInfoExDTOResponse.GetResponseFromXml(respContent) :
-                        response = GetCardInfoExDTOResponse.GetResponseFromJson(respContent);
-
-                    cardInfo = response.CardInfo;
-                    outBuf = response.OutBuf;
-                    outKind = (BuffKind)response.OutKind;
-                    res = response.Result;
+                    throw new Exception(httpResponse.ReasonPhrase);
                 }
+
+                _logger.Trace("ReadMT");
+                var mt = httpResponse.Content.Headers.ContentType.MediaType;
+                if (!mt.Contains("xml") && !mt.Contains("json"))
+                    throw new Exception("Error parsing request");
+
+                var respContent = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
+                    .ConfigureAwait(false)).GetAwaiter().GetResult();
+
+                GetCardInfoExDTOResponse response = (mt.Contains("xml")) ?
+                    response = GetCardInfoExDTOResponse.GetResponseFromXml(respContent) :
+                    response = GetCardInfoExDTOResponse.GetResponseFromJson(respContent);
+
+                cardInfo = response.CardInfo;
+                outBuf = response.OutBuf;
+                outKind = (BuffKind)response.OutKind;
+                res = response.Result;
+
             }
             catch (Exception ex)
             {
@@ -142,46 +184,73 @@ namespace HttpFarcard6Client
             int res = 1;
             try
             {
-                using (var client = GetNewClient())
+
+                var encoding = Encoding.UTF8;
+
+                _logger.Trace($"TransactionsEx ");
+                transactionInfo.ForEach(x => _logger.Trace($"Info:{x.ToStringLog()}"));
+                _logger.Trace($"InpKind: {inpKind}");
+                _logger.Trace($"InpLen: {inpBuf.Length}");
+                _logger.Trace($"inpBuff: {encoding.GetString(inpBuf)}");
+
+
+                var req = new TransactionExDtoRequest(transactionInfo, inpBuf, (ushort)inpKind);
+
+                var reqContent = (!_settings.Json) ? new StringContent(req.ToXml(encoding), encoding, "text/xml") :
+                     new StringContent(req.ToJson(), encoding, "text/json");
+
+                var reqTxt = Task.Run(async () =>
+                        await reqContent.ReadAsStringAsync()
+                        .ConfigureAwait(false))
+                    .GetAwaiter()
+                    .GetResult();
+
+                _logger.Trace($"req:{reqTxt}");
+
+                _logger.Trace($"Get Http Client");
+                var client = GetHttpClient();
+
+                var httpResponse = Task.Run(async () => await client.PostAsync(_settings.TransactionsEx, reqContent)
+                .ConfigureAwait(false)).GetAwaiter().GetResult();
+
+                _logger.Trace($"Url: {httpResponse.RequestMessage.RequestUri}");
+
+                _logger.Trace($"RespCode:{httpResponse.StatusCode} ,RespReason {httpResponse.ReasonPhrase}");
+
+                if (!httpResponse.IsSuccessStatusCode)
                 {
-                    var encoding = Encoding.UTF8;
-                    var req = new TransactionExDTORequest(transactionInfo, inpBuf, (ushort)inpKind);
-
-                    var reqContent = (!_settings.Json) ? new StringContent(req.ToXml(encoding), encoding, "text/xml") :
-                         new StringContent(req.ToJson(), encoding, "text/json");
-
-                    var httpResponse = Task.Run(async () => await client.PostAsync(_settings.TransactionsEx, reqContent)
-                    .ConfigureAwait(false)).GetAwaiter().GetResult();
-
-                    if (!httpResponse.IsSuccessStatusCode)
+                    if (httpResponse.Content.Headers.ContentLength > 0 &&
+                        httpResponse.Content.Headers.ContentType.MediaType.Contains("plain"))
                     {
-                        if (httpResponse.Content.Headers.ContentLength > 0 &&
-                            httpResponse.Content.Headers.ContentType.MediaType.Contains("plain"))
-                        {
-                            var message = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
-                                .ConfigureAwait(false)).GetAwaiter().GetResult();
-                            throw new Exception(message);
-                        }
-
-                        throw new Exception(httpResponse.ReasonPhrase);
+                        var message = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
+                            .ConfigureAwait(false)).GetAwaiter().GetResult();
+                        _logger.Trace($"ErrorMessage: {message}");
+                        throw new Exception(message);
                     }
 
-                    var mt = httpResponse.Content.Headers.ContentType.MediaType;
-
-                    if ((!mt.Contains("xml")) && (!mt.Contains("json")))
-                        throw new Exception("Error parsing request");
-                    var respContent = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
-                        .ConfigureAwait(false)).GetAwaiter().GetResult();
-
-                    TransactionExDTOResponse response = (mt.Contains("xml"))
-                        ? response = TransactionExDTOResponse.GetResponse(respContent)
-                        : response = TransactionExDTOResponse.GetResponseFromJson(respContent);
-
-                    outBuf = response.OutBuf;
-                    outKind = (BuffKind)response.OutKind;
-                    res = response.Result;
-
+                    throw new Exception(httpResponse.ReasonPhrase);
                 }
+
+                var mt = httpResponse.Content.Headers.ContentType.MediaType;
+
+                _logger.Trace($"Mt: {mt}");
+                if ((!mt.Contains("xml")) && (!mt.Contains("json")))
+                    throw new Exception("Error parsing request");
+
+                var respContent = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
+                    .ConfigureAwait(false)).GetAwaiter().GetResult();
+
+                _logger.Trace($"RespBody: {respContent}");
+
+                TransactionExDtoResponse response = (mt.Contains("xml"))
+                    ? response = TransactionExDtoResponse.GetResponse(respContent)
+                    : response = TransactionExDtoResponse.GetResponseFromJson(respContent);
+
+                outBuf = response.OutBuf;
+                outKind = (BuffKind)response.OutKind;
+                res = response.Result;
+
+
             }
             catch (Exception ex)
             {
@@ -191,9 +260,11 @@ namespace HttpFarcard6Client
             {
                 if (res != 0 && (outBuf == null || outBuf.Length < 0))
                 {
-                    var tResp = new TrResponse();
-                    tResp.ErrorCode = -1;
-                    tResp.ErrorText = "Processing server connect error";
+                    var tResp = new TrResponse
+                    {
+                        ErrorCode = -1,
+                        ErrorText = "Processing server connect error"
+                    };
                     var xml = Serializer.SerializeObject(tResp);
                     if (!string.IsNullOrWhiteSpace(xml))
                     {
@@ -211,46 +282,46 @@ namespace HttpFarcard6Client
             int res = 1;
             try
             {
-                using (var client = GetNewClient())
+                var client = GetHttpClient();
+
+                var encoding = Encoding.UTF8;
+                var req = new FindEmailDTORequest(email);
+
+                var reqContent = (!_settings.Json) ? new StringContent(req.ToXml(encoding), encoding, "text/xml") :
+                    new StringContent(req.ToJson(), encoding, "text/json");
+
+                var httpResponse = Task.Run(async () => await client.PostAsync(_settings.FindEmail, reqContent)
+                    .ConfigureAwait(false)).GetAwaiter().GetResult();
+
+                if (!httpResponse.IsSuccessStatusCode)
                 {
-                    var encoding = Encoding.UTF8;
-                    var req = new FindEmailDTORequest(email);
-
-                    var reqContent = (!_settings.Json) ? new StringContent(req.ToXml(encoding), encoding, "text/xml") :
-                        new StringContent(req.ToJson(), encoding, "text/json");
-
-                    var httpResponse = Task.Run(async () => await client.PostAsync(_settings.FindEmail, reqContent)
-                        .ConfigureAwait(false)).GetAwaiter().GetResult();
-
-                    if (!httpResponse.IsSuccessStatusCode)
+                    if (httpResponse.Content.Headers.ContentLength > 0 &&
+                        httpResponse.Content.Headers.ContentType.MediaType.Contains("plain"))
                     {
-                        if (httpResponse.Content.Headers.ContentLength > 0 &&
-                            httpResponse.Content.Headers.ContentType.MediaType.Contains("plain"))
-                        {
-                            var message = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
-                                .ConfigureAwait(false)).GetAwaiter().GetResult();
-                            throw new Exception(message);
-                        }
-
-                        throw new Exception(httpResponse.ReasonPhrase);
+                        var message = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
+                            .ConfigureAwait(false)).GetAwaiter().GetResult();
+                        throw new Exception(message);
                     }
 
-                    var mt = httpResponse.Content.Headers.ContentType.MediaType;
-
-                    if ((!mt.Contains("xml")) && (!mt.Contains("json")))
-                        throw new Exception("Error parsing request");
-                    var respContent = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
-                        .ConfigureAwait(false)).GetAwaiter().GetResult();
-
-                    FindEmailDTOResponse response = (mt.Contains("xml"))
-                        ? FindEmailDTOResponse.GetResponseFromXml(respContent)
-                        : FindEmailDTOResponse.GetResponseFromJson(respContent);
-
-                    holderInfo.ClientId = response.Account;
-                    holderInfo.Card = response.CardCode;
-                    holderInfo.Owner = response.Name;
-                    res = response.Result;
+                    throw new Exception(httpResponse.ReasonPhrase);
                 }
+
+                var mt = httpResponse.Content.Headers.ContentType.MediaType;
+
+                if ((!mt.Contains("xml")) && (!mt.Contains("json")))
+                    throw new Exception("Error parsing request");
+                var respContent = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
+                    .ConfigureAwait(false)).GetAwaiter().GetResult();
+
+                FindEmailDTOResponse response = (mt.Contains("xml"))
+                    ? FindEmailDTOResponse.GetResponseFromXml(respContent)
+                    : FindEmailDTOResponse.GetResponseFromJson(respContent);
+
+                holderInfo.ClientId = response.Account;
+                holderInfo.Card = response.CardCode;
+                holderInfo.Owner = response.Name;
+                res = response.Result;
+
             }
             catch (Exception ex)
             {
@@ -317,61 +388,61 @@ namespace HttpFarcard6Client
             int res = 1;
             try
             {
-                using (var client = GetNewClient())
+                var client = GetHttpClient();
+
+                var encoding = Encoding.UTF8;
+                var req = new GetCardImageExDTORequest(card);
+
+                var reqContent = (!_settings.Json)
+                    ? new StringContent(req.ToXml(encoding), encoding, "text/xml")
+                    : new StringContent(req.ToJson(), encoding, "text/json");
+
+                var httpResponse = Task.Run(async () => await client.PostAsync(_settings.GetCardImageEx, reqContent)
+                    .ConfigureAwait(false)).GetAwaiter().GetResult();
+
+                if (!httpResponse.IsSuccessStatusCode)
                 {
-                    var encoding = Encoding.UTF8;
-                    var req = new GetCardImageExDTORequest(card);
-
-                    var reqContent = (!_settings.Json)
-                        ? new StringContent(req.ToXml(encoding), encoding, "text/xml")
-                        : new StringContent(req.ToJson(), encoding, "text/json");
-
-                    var httpResponse = Task.Run(async () => await client.PostAsync(_settings.GetCardImageEx, reqContent)
-                        .ConfigureAwait(false)).GetAwaiter().GetResult();
-
-                    if (!httpResponse.IsSuccessStatusCode)
+                    if (httpResponse.Content.Headers.ContentLength > 0 &&
+                        httpResponse.Content.Headers.ContentType.MediaType.Contains("plain"))
                     {
-                        if (httpResponse.Content.Headers.ContentLength > 0 &&
-                            httpResponse.Content.Headers.ContentType.MediaType.Contains("plain"))
-                        {
-                            var message = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
-                                .ConfigureAwait(false)).GetAwaiter().GetResult();
-                            throw new Exception(message);
-                        }
-
-                        throw new Exception(httpResponse.ReasonPhrase);
-                    }
-
-                    var mt = httpResponse.Content.Headers.ContentType.MediaType;
-                    if (!mt.Contains("xml") && !mt.Contains("json") && !mt.Contains("image"))
-                        throw new Exception("Error parsing request");
-
-                    if (!mt.Contains("image"))
-                    {
-                        var respContent = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
+                        var message = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
                             .ConfigureAwait(false)).GetAwaiter().GetResult();
-
-                        GetCardImageExDTOResponse response = (mt.Contains("xml"))
-                            ? response = GetCardImageExDTOResponse.GetResponseFromXml(respContent)
-                            : response = GetCardImageExDTOResponse.GetResponseFromJson(respContent);
-                        throw new Exception(response.ErrorText);
+                        throw new Exception(message);
                     }
 
-                    var binaryContent = Task.Run(async () => await httpResponse.Content.ReadAsByteArrayAsync()
-                        .ConfigureAwait(false)).GetAwaiter().GetResult();
-                    var parseExt = mt.Replace("image/", "");
-                    var fi = new FileInfo($"1.{parseExt}");
-                    using (var ms = new MemoryStream(binaryContent))
-                    {
-                        using (var fs = new FileStream(fi.FullName, FileMode.OpenOrCreate, FileAccess.Write))
-                        {
-                            ms.CopyTo(fs);
-                            info.Text = fi.FullName;
-                            res = 0;
-                        }
-                    }
-
+                    throw new Exception(httpResponse.ReasonPhrase);
                 }
+
+                var mt = httpResponse.Content.Headers.ContentType.MediaType;
+                if (!mt.Contains("xml") && !mt.Contains("json") && !mt.Contains("image"))
+                    throw new Exception("Error parsing request");
+
+                if (!mt.Contains("image"))
+                {
+                    var respContent = Task.Run(async () => await httpResponse.Content.ReadAsStringAsync()
+                        .ConfigureAwait(false)).GetAwaiter().GetResult();
+
+                    GetCardImageExDTOResponse response = (mt.Contains("xml"))
+                        ? response = GetCardImageExDTOResponse.GetResponseFromXml(respContent)
+                        : response = GetCardImageExDTOResponse.GetResponseFromJson(respContent);
+                    throw new Exception(response.ErrorText);
+                }
+
+                var binaryContent = Task.Run(async () => await httpResponse.Content.ReadAsByteArrayAsync()
+                    .ConfigureAwait(false)).GetAwaiter().GetResult();
+                var parseExt = mt.Replace("image/", "");
+                var fi = new FileInfo($"1.{parseExt}");
+                using (var ms = new MemoryStream(binaryContent))
+                {
+                    using (var fs = new FileStream(fi.FullName, FileMode.OpenOrCreate, FileAccess.Write))
+                    {
+                        ms.CopyTo(fs);
+                        info.Text = fi.FullName;
+                        res = 0;
+                    }
+                }
+
+
             }
             catch (Exception ex)
             {
@@ -383,7 +454,18 @@ namespace HttpFarcard6Client
 
         public void Dispose()
         {
-
+            try
+            {
+                if (_httpClient != null)
+                {
+                    _httpClient.Dispose();
+                    _httpClient = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
         }
 
     }

@@ -6,7 +6,7 @@ using System.Text;
 using System.Xml.Serialization;
 using System.Xml;
 
-namespace FarcardContract.Data.Farcard6
+namespace FarcardContract.Data
 {
     public class Serializer
     {
@@ -17,10 +17,12 @@ namespace FarcardContract.Data.Farcard6
             try
             {
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
+                
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
                     using (XmlTextWriter xmlTextWriter = new XmlTextWriter(memoryStream, Encoding.UTF8))
-                    {
+                    {   
+                        xmlTextWriter.Formatting = Formatting.Indented;
                         XmlSerializerNamespaces xmn = new XmlSerializerNamespaces();
                         xmn.Add("", "");
                         xmlSerializer.Serialize(xmlTextWriter, o, xmn);

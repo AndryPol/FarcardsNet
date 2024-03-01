@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<XmlSettingsOfTunnelFarcard6Settings>
+  <Settings>
+    <LogLevel>5</LogLevel>
+    <PathDll>ExtDllHTTP.dll</PathDll>
+  </Settings>
+</XmlSettingsOfTunnelFarcard6Settings>

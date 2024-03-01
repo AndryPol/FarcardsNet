@@ -29,7 +29,7 @@ namespace FarcardContract
             catch (Exception ex)
             {
 
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
             try
             {
@@ -38,7 +38,7 @@ namespace FarcardContract
             catch (Exception ex)
             {
 
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
         }
 
@@ -54,7 +54,7 @@ namespace FarcardContract
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
 
             return res;
@@ -72,7 +72,7 @@ namespace FarcardContract
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
             return res;
         }
@@ -86,7 +86,7 @@ namespace FarcardContract
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
             return res;
         }
@@ -99,7 +99,7 @@ namespace FarcardContract
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
 
         }
@@ -112,7 +112,7 @@ namespace FarcardContract
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
         }
 
@@ -125,7 +125,7 @@ namespace FarcardContract
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
         }
 
@@ -137,7 +137,7 @@ namespace FarcardContract
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
 
             return 1;
@@ -151,7 +151,7 @@ namespace FarcardContract
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
             try
             {
@@ -159,7 +159,7 @@ namespace FarcardContract
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
         }
 
@@ -172,7 +172,7 @@ namespace FarcardContract
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
             return res;
         }

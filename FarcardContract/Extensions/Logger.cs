@@ -9,69 +9,90 @@ namespace FarcardContract
     public class Logger<T>
     {
         // LoggingConfiguration config = new LoggingConfiguration();
-        Logger logs = null;
-        FileTarget fileTarget = new FileTarget();
-        LogLevel _minLevel = LogLevel.Trace;
+        private Logger _logs = null;
+        private FileTarget _fileTarget = new FileTarget();
+        private LogLevel _minLevel = LogLevel.Trace;
         bool _console = false;
 
 
         // string ProcessName = "${processname}";
-        string NAMETRACE = "${basedir}/log/${shortdate}/trace.log";
-        string LOGNAME = "${basedir}/log/${shortdate}/" + $"{GetFormattedName(typeof(T))}.log";
+        private string _NAMETRACE = "${basedir}/log/${shortdate}/trace.log";
+        private string _LOGNAME = "${basedir}/log/${shortdate}/" + $"{GetFormattedName(typeof(T))}.log";
 
-        public void Error(string st)
+        public void Error(string message)
         {
-          //  SetSettings();
-            logs.Error(st);
+            //  SetSettings();
+            _logs.Error(message);
 
         }
 
         public void Error(Exception ex)
         {
-           // SetSettings();
-            logs.Error(ex);
+            // SetSettings();
+            _logs.Error(ex);
         }
+
+        public void Error(string message, Exception ex)
+        {
+            _logs.Error(ex, message);
+        }
+
 
         void SetSettings()
         {
-            fileTarget.FileName = LOGNAME;
-            fileTarget.Layout = @"${longdate} ${Level} ${message}";
+            _fileTarget.FileName = _LOGNAME;
+            _fileTarget.Layout = @"${longdate} ${Level} ${message}";
         }
 
-        public void Debug(string st)
+        public void Debug(string message)
         {
-          //  SetSettings();
-            logs.Debug(st);
+            //  SetSettings();
+            _logs.Debug(message);
         }
-        //public void ToLog(string st)
-        //{
-        //    fileTarget.FileName = NAMETRACE;
-        //    fileTarget.Layout = @"${longdate} ${message}";
 
-        //    logs.Debug(st);
+        public void Info(string message)
+        {
+            _logs.Info(message);
+        }
+
+        public void Warn(string message)
+        {
+            _logs.Warn(message);
+        }
+
+        public void Fatal(string message)
+        {
+            _logs.Fatal(message);
+        }
+
+        //public void ToLog(string message)
+        //{
+        //    _fileTarget.FileName = _NAMETRACE;
+        //    _fileTarget.Layout = @"${longdate} ${message}";
+
+        //    _logs.Debug(message);
         //}
-        public void Trace(string st)
+        public void Trace(string message)
         {
             //SetSettings();
-            logs.Trace(st);
+            _logs.Trace(message);
         }
 
         public Logger(int minLevel = 5, bool console = false)
-        { 
+        {
             _console = console;
             SetLevel(minLevel);
-           
-            var loggername = Reconfigure();
-            logs = LogManager.GetLogger(loggername);
 
+            var loggername = Reconfigure();
+            _logs = LogManager.GetLogger(loggername);
         }
 
         public Logger GetLogger()
         {
-            return logs;
+            return _logs;
         }
 
-       public void SetLevel(int minLevel = 5)
+        public void SetLevel(int minLevel = 5)
         {
             switch (minLevel)
             {
@@ -111,15 +132,15 @@ namespace FarcardContract
         string Reconfigure()
         {
             var loggername = GetFormattedName(typeof(T));
-            fileTarget.FileName = LOGNAME; //.Replace("`","_");
-            fileTarget.Layout = @"${longdate} ${Level} ${message}";
-            fileTarget.Name = "file" + loggername;
+            _fileTarget.FileName = _LOGNAME; //.Replace("`","_");
+            _fileTarget.Layout = @"${longdate} ${Level} ${message}";
+            _fileTarget.Name = "file" + loggername;
             var consolename = $"Console{loggername}";
-            LoggingRule rul = new LoggingRule(loggername, _minLevel, fileTarget);
+            LoggingRule rul = new LoggingRule(loggername, _minLevel, _fileTarget);
             var consoleTarget = new ConsoleTarget();
             consoleTarget.AutoFlush = true;
             consoleTarget.Name = loggername;
-            consoleTarget.Layout = fileTarget.Layout;
+            consoleTarget.Layout = _fileTarget.Layout;
             consoleTarget.DetectConsoleAvailable = true;
 
             var consoleRule = new LoggingRule(loggername, _minLevel, consoleTarget);
@@ -127,7 +148,7 @@ namespace FarcardContract
             if (LogManager.Configuration == null)
             {
                 var config = new LoggingConfiguration();
-                config.AddTarget(fileTarget.Name, fileTarget);
+                config.AddTarget(_fileTarget.Name, _fileTarget);
                 if (_console)
                 {
                     config.AddTarget(loggername, consoleTarget);
@@ -139,15 +160,15 @@ namespace FarcardContract
             }
             else
             {
-                var target = LogManager.Configuration.FindTargetByName(fileTarget.Name);
+                var target = LogManager.Configuration.FindTargetByName(_fileTarget.Name);
                 if (target == null)
                 {
-                    LogManager.Configuration.AddTarget(fileTarget.Name, fileTarget);
+                    LogManager.Configuration.AddTarget(_fileTarget.Name, _fileTarget);
                 }
 
                 if (_console)
                 {
-                    var _consoleTarget = LogManager.Configuration.AllTargets.FirstOrDefault(x=>x.Name==consolename&&x.GetType() == typeof(ConsoleTarget));
+                    var _consoleTarget = LogManager.Configuration.AllTargets.FirstOrDefault(x => x.Name == consolename && x.GetType() == typeof(ConsoleTarget));
                     if (_consoleTarget == null)
                         LogManager.Configuration.AddTarget(consoleTarget.Name, consoleTarget);
                 }

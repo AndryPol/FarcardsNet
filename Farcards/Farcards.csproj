@@ -8,6 +8,7 @@
 		<AssemblyVersion>1.0.0.1</AssemblyVersion>
 		<FileVersion>1.0.0.1</FileVersion>
 		<Company>AndryPol</Company>
+		<UseWindowsForms>true</UseWindowsForms>
 		<Description>Test utility by plugin</Description>
 	</PropertyGroup>
 

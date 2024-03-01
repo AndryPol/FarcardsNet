@@ -2,7 +2,7 @@
 
 namespace TunnelFarcard6
 {
-    public class TunnelFarcardSettings:XmlSettings<TunnelFarcardSettings>
+    public class TunnelFarcard6Settings:XmlSettings<TunnelFarcard6Settings>
     {
         public int LogLevel { get; set; } = 5;
 

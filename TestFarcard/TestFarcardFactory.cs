@@ -20,16 +20,16 @@ using TunnelFarcard6;
 namespace TestFarcardNet
 {
     [TestClass]
-    public class TestFarcardFabric
+    public class TestFarcardFactory
     {
         public TestContext TestContext { get; set; }
 
         [TestMethod]
-        public void TestFarcardAllFabric()
+        public void TestFarcardAllFactory()
         {
             try
             {
-                IFarcards allFarcard = new FarcardsAllFabric().GetProcessor();
+                IFarcards allFarcard = new FarcardsAllFactory().GetProcessor();
                 Assert.IsNotNull(allFarcard);
                 TestIFarcard6(allFarcard);
             }
@@ -48,7 +48,7 @@ namespace TestFarcardNet
                 try
                 {
                     var fileinfo = new FileInfo("HttpFarcard6Client.dll");
-                    IFarcards6 httpFarcards6 = new Farcards6Fabric().GetProcessor(fileinfo);
+                    IFarcards6 httpFarcards6 = new Farcards6Factory().GetProcessor(fileinfo);
                     TestIFarcard6(httpFarcards6);
                 }
                 catch (Exception ex)
@@ -138,7 +138,7 @@ namespace TestFarcardNet
                         RKDate = DateTime.Now,
                         Summa = 100m,
                         Restaurant = 1,
-                        RKUni = 1,
+                        RKUnit = 1,
                         RKCheck = 1,
                         Kind = (TransactType)i
                     };

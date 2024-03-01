@@ -5,13 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace FarcardContract.Data
+namespace FarcardContract.Data.BufferData
 {
     [Serializable]
     [XmlRoot("TRRESPONSE")]
     public class TrResponse
     {
-        public bool ShouldSerializeErrorCode() { return ErrorCode!=0; }
+        public bool ShouldSerializeErrorCode() { return ErrorCode != 0; }
         public bool ShouldSerializeErrorText() { return ErrorText != null; }
         public bool ShouldSerializePlaceId() { return PlaceId != null; }
 

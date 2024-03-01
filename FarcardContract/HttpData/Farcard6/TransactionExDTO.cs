@@ -7,7 +7,7 @@ using System.Xml;
 
 namespace FarcardContract.HttpData.Farcard6
 {
-    public class TransactionExDTORequest
+    public class TransactionExDtoRequest
     {
         public List<TransactionInfoEx> Transactions { get; private set; }
 
@@ -16,14 +16,14 @@ namespace FarcardContract.HttpData.Farcard6
 
         public UInt16 InpKind { get; private set; }
 
-        public TransactionExDTORequest(List<TransactionInfoEx> transactions, byte[] inpBuf, ushort inpKind)
+        public TransactionExDtoRequest(List<TransactionInfoEx> transactions, byte[] inpBuf, ushort inpKind)
         {
             Transactions = transactions;
             InpBuf = inpBuf;
             InpKind = inpKind;
         }
 
-        public static TransactionExDTORequest GetRequestFromXml(string body)
+        public static TransactionExDtoRequest GetRequestFromXml(string body)
         {
             var document = new XmlDocument();
             document.LoadXml(body);
@@ -32,6 +32,7 @@ namespace FarcardContract.HttpData.Farcard6
             if (transactNodes.Count == 0)
                 throw new ArgumentException("Transactions Nodes Not Found");
             var list = new List<TransactionInfoEx>();
+
             foreach (XmlNode node in transactNodes)
             {
                 var tr = node.ParseAttributeToObject<TransactionInfoEx>();
@@ -52,16 +53,15 @@ namespace FarcardContract.HttpData.Farcard6
                 inpDoc.AppendChild(importNode);
                 inpBuf = encoding.GetBytes(inpDoc.OuterXml);
                 var attrKind = inpBufNode.Attribute(nameof(InpKind), false);
-                ushort kind = 0;
-                inpKind = (ushort)((attrKind != null && UInt16.TryParse(attrKind, out kind)) ? kind : 1);
+                inpKind = (ushort)((attrKind != null && ushort.TryParse(attrKind, out var kind)) ? kind : 1);
             }
 
-            return new TransactionExDTORequest(list, inpBuf, inpKind);
+            return new TransactionExDtoRequest(list, inpBuf, inpKind);
         }
 
-        public static TransactionExDTORequest GetRequestFromJson(string json)
+        public static TransactionExDtoRequest GetRequestFromJson(string json)
         {
-            return JsonConvert.DeserializeObject<TransactionExDTORequest>(json);
+            return JsonConvert.DeserializeObject<TransactionExDtoRequest>(json);
         }
 
         public string ToJson()
@@ -78,13 +78,13 @@ namespace FarcardContract.HttpData.Farcard6
             var transactions = root.AppendElement(nameof(Transactions));
             foreach (var transaction in Transactions)
             {
-                var tranct = transactions.AppendElement(nameof(TransactionsEx));
-                tranct.AppendAttributesFromObject(transaction);
+                var transact = transactions.AppendElement(nameof(TransactionsEx));
+                transact.AppendAttributesFromObject(transaction);
             }
 
-            if (InpBuf != null && InpBuf.Length > 0 && InpKind > 0)
+            if (InpBuf != null && InpBuf.Length > 0)
             {
-                var inpBuf = root.AppendXmlBuffer(nameof(InpBuf), InpBuf);
+                var inpBuf = root.AppendXmlBuffer("INPBUF", InpBuf);
 
                 if (inpBuf != null && InpKind != 0)
                 {
@@ -96,7 +96,7 @@ namespace FarcardContract.HttpData.Farcard6
         }
     }
 
-    public class TransactionExDTOResponse
+    public class TransactionExDtoResponse
     {
 
         public int Result { get; private set; }
@@ -105,14 +105,14 @@ namespace FarcardContract.HttpData.Farcard6
 
         public UInt16 OutKind { get; private set; }
 
-        public TransactionExDTOResponse(int result, byte[] outBuf, ushort outKind)
+        public TransactionExDtoResponse(int result, byte[] outBuf, ushort outKind)
         {
             Result = result;
             OutBuf = outBuf;
             OutKind = outKind;
         }
 
-        public static TransactionExDTOResponse GetResponse(string body)
+        public static TransactionExDtoResponse GetResponse(string body)
         {
             var document = new XmlDocument();
             document.LoadXml(body);
@@ -124,12 +124,12 @@ namespace FarcardContract.HttpData.Farcard6
 
             document.GetBufferXmlFromNode(nameof(outBuf), nameof(outKind), out outBuf, out outKind);
 
-            return new TransactionExDTOResponse(res, outBuf, outKind);
+            return new TransactionExDtoResponse(res, outBuf, outKind);
         }
 
-        public static TransactionExDTOResponse GetResponseFromJson(string json)
+        public static TransactionExDtoResponse GetResponseFromJson(string json)
         {
-            return JsonConvert.DeserializeObject<TransactionExDTOResponse>(json);
+            return JsonConvert.DeserializeObject<TransactionExDtoResponse>(json);
         }
 
         public string ToJson()

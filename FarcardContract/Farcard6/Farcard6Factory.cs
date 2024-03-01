@@ -2,15 +2,15 @@
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
 
-namespace FarcardContract
+namespace FarcardContract.Farcard6
 {
-    public class FarcardsAllFabric
+    public class Farcards6Factory
     {
-        [Import(typeof(IFarcards))]
+        [Import(typeof(IFarcards6))]
 #pragma warning disable 0649
-        private IFarcards _processor;
+        private IFarcards6 _processor;
 #pragma warning restore 0649
-        public IFarcards GetProcessor(FileInfo path = null)
+        public IFarcards6 GetProcessor(FileInfo path = null)
         {
 
             var catalog = new AggregateCatalog();

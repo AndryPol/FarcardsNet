@@ -43,48 +43,72 @@ namespace HttpFarcardService
 
                 InitDelegateFromSettings();
 
-                _logger.Trace("Starting...");
+                _logger.Info("Starting...");
                 _encoding = Encoding.GetEncoding(_serverSetting.AnswerEncoding);
 
-                FileInfo dllinfo = null;
+                _logger.Info($"Encoding server {_encoding.EncodingName}");
+                _logger.Info($"PathDll: {_serverSetting.DLL}");
+                FileInfo dllInfo = null;
                 if (!string.IsNullOrWhiteSpace(_serverSetting.DLL))
-                    dllinfo = new FileInfo(_serverSetting.DLL);
+                {
+                    dllInfo = new FileInfo(_serverSetting.DLL);
+                    _logger.Info($"FullPathDll: {dllInfo.FullName}");
+                }
 
-                _farcardProcessor = new Farcards6Fabric().GetProcessor(dllinfo);
-                _logger.Trace($"Loaded card processor is {_farcardProcessor.GetType().FullName}");
-
-                _httpServer = new HttpServer($"http://*:{_serverSetting.Port}/");
+                _farcardProcessor = new Farcards6Factory().GetProcessor(dllInfo);
+                _logger.Info($"Loaded Card Plugin Is {_farcardProcessor.GetType().FullName}");
+                _logger.Info("Start HttpServer");
+                _httpServer = new HttpServer($"http://*:{_serverSetting.Port}/", _serverSetting.LogLevel);
                 _httpServer.Subscribe(ProcessRequest);
-                _logger.GetLogger().Info($"Started server: {_httpServer.Url}");
+                _logger.Info($"Started Server: {_httpServer.Url}");
 
+                _logger.Info("Plugin Init");
                 _farcardProcessor?.Init();
-
+                _logger.Info("Plugin Init Complete");
 
             }
             catch (Exception ex)
             {
-                _logger.Error($"General server error {ex}");
+                _logger.Error($"General Server Error {ex}");
                 DisposeServer();
             }
         }
 
         void InitDelegateFromSettings()
         {
+            _logger.Trace("Init Delegate");
+
             delegateDictionary.Clear();
+
             if (!delegateDictionary.ContainsKey(_serverSetting.GetCardInfoEx))
+            {
                 delegateDictionary.Add(_serverSetting.GetCardInfoEx, GetCardInfoEx);
+                _logger.Info($"AddDelegate: {nameof(GetCardInfoEx)} _ {_serverSetting.GetCardInfoEx}");
+            }
+
             if (!delegateDictionary.ContainsKey(_serverSetting.TransactionsEx))
+            {
                 delegateDictionary.Add(_serverSetting.TransactionsEx, TransactionsEx);
+                _logger.Info($"AddDelegate: {nameof(TransactionsEx)} _ {_serverSetting.TransactionsEx}");
+            }
+
             if (!delegateDictionary.ContainsKey(_serverSetting.FindEmail))
+            {
                 delegateDictionary.Add(_serverSetting.FindEmail, FindEmail);
+                _logger.Info($"AddDelegate: {nameof(FindEmail)} _ {_serverSetting.FindEmail}");
+            }
+
             if (!delegateDictionary.ContainsKey(_serverSetting.GetCardImageEx))
+            {
                 delegateDictionary.Add(_serverSetting.GetCardImageEx, GetCardImageEx);
-            
-            _logger.GetLogger().Info("RouteServer");
+                _logger.Info($"AddDelegate: {nameof(GetCardImageEx)} _ {_serverSetting.GetCardImageEx}");
+            }
+
+            _logger.Info("RouteServer");
 
             foreach (var delegates in delegateDictionary)
             {
-                _logger.GetLogger().Info($"route: {delegates.Key} function: {delegates.Value.Method.Name}");
+                _logger.Info($"route: {delegates.Key} function: {delegates.Value.Method.Name}");
             }
         }
 
@@ -98,13 +122,22 @@ namespace HttpFarcardService
             try
             {
                 var enc = request.ContentEncoding;
-                _logger.Trace($"Begin request {request.Url}");
+                _logger.Info($"Begin request {request.Url}");
+
+                if (request.ContentLength64 <= 0)
+                {
+                    _logger.Error($"Request content is empty on {request.Url}");
+                    context.Response.StatusCode = (int)HttpStatusCode.NoContent;
+                    WriteContent(context, $"Request content is empty", "text/plain");
+                    return;
+                }
+
                 using (var ms = new MemoryStream())
                 {
                     request.InputStream.CopyTo(ms);
                     body = request.ContentEncoding.GetString(ms.ToArray());
                 }
-                _logger.Trace($"\t {body}");
+                _logger.Info($"\t {body}");
 
                 if ((request.ContentType != null) &&
                 ((request.ContentType.Contains("xml")) ||
@@ -115,18 +148,21 @@ namespace HttpFarcardService
 
                     if (delegateDictionary.ContainsKey(localPath))
                     {
+                        _logger.Info($"Invoke delegate {delegateDictionary[localPath].Method.Name} by {localPath}");
                         delegateDictionary[localPath].Invoke(context, body);
                     }
                     else
                     {
+                        _logger.Info($"Route {localPath} not found");
                         context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                         WriteContent(context, $"route{localPath} not found", "text/plain");
                     }
                 }
                 else
                 {
+                    _logger.Info($"UnSupport ContentType: {request.ContentType}, content {body}");
                     context.Response.StatusCode = (int)HttpStatusCode.UnsupportedMediaType;
-                    WriteContent(context, $"Unsupport contentType : {request.ContentType}", "text/plain");
+                    WriteContent(context, $"UnSupport contentType : {request.ContentType}", "text/plain");
                 }
 
             }
@@ -149,9 +185,15 @@ namespace HttpFarcardService
 
             GetCardInfoExDTORequest req;
             if (RequestIsXml(context))
+            {
+                _logger.Info($"GetCardInfoEx RequestXml: {body}");
                 req = GetCardInfoExDTORequest.GetRequestFromXml(body);
+            }
             else
+            {
+                _logger.Info($"GetCardInfoEx RequestJson: {body}");
                 req = GetCardInfoExDTORequest.GetRequestFromJson(body);
+            }
 
             byte[] outBuf = null;
             BuffKind outKind = 0;
@@ -160,59 +202,72 @@ namespace HttpFarcardService
 
             try
             {
+                _logger.Info("GetCardInfoEx Start Processing");
                 res = _farcardProcessor.GetCardInfoEx(req.Card, req.Restaurant, req.UnitNo, ref cardInfo, req.InpBuf,
                 (BuffKind)req.InpKind, out outBuf, out outKind);
+                _logger.Info($"GetCardInfoEx Processing Complete, Result:{res}");
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
 
             var resp = new GetCardInfoExDTOResponse(res, cardInfo, outBuf, (UInt16)outKind);
             if (RequestIsXml(context))
             {
                 var result = resp.ToXml(_encoding);
+                _logger.Info($"GetCardInfoEx ResponseXml: {result}");
                 WriteContent(context, result, "text/xml");
             }
             else
             {
                 var result = resp.ToJson();
+                _logger.Info($"GetCardInfoEx ResponseJson: {result}");
                 WriteContent(context, result, "text/json");
             }
         }
 
         private void TransactionsEx(RequestContext context, string body)
         {
-            TransactionExDTORequest req;
+            TransactionExDtoRequest req;
             if (RequestIsXml(context))
-                req = TransactionExDTORequest.GetRequestFromXml(body);
+            {
+                _logger.Info($"TransactionEx RequestXml: {body}");
+                req = TransactionExDtoRequest.GetRequestFromXml(body);
+            }
             else
-                req = TransactionExDTORequest.GetRequestFromJson(body);
+            {
+                _logger.Info($"TransactionEx RequestJson: {body}");
+                req = TransactionExDtoRequest.GetRequestFromJson(body);
+            }
 
             byte[] outBuf = null;
             BuffKind outKind = 0;
             var res = 1;
             try
             {
+                _logger.Info($"TransactionsEx Start Processing");
                 res = _farcardProcessor.TransactionsEx(req.Transactions, req.InpBuf, (BuffKind)req.InpKind, out outBuf,
                      out outKind);
-
+                _logger.Info($"TransactionsEx Processing Complete, Result:{res}");
             }
             catch (Exception ex)
             {
-                _logger.GetLogger().Error(ex);
+                _logger.Error(ex);
             }
 
-            var resp = new TransactionExDTOResponse(res, outBuf, (UInt16)outKind);
+            var resp = new TransactionExDtoResponse(res, outBuf, (UInt16)outKind);
 
             if (RequestIsXml(context))
             {
                 var result = resp.ToXml(_encoding);
+                _logger.Info($"TransactionEx ResponseXml: {result}");
                 WriteContent(context, result, "text/xml");
             }
             else
             {
                 var result = resp.ToJson();
+                _logger.Info($"TransactionEx ResponseJson: {result}");
                 WriteContent(context, result, "text/json");
             }
 
@@ -221,15 +276,26 @@ namespace HttpFarcardService
         private void FindEmail(RequestContext context, string body)
         {
             FindEmailDTORequest req;
+
             if (RequestIsXml(context))
+            {
+                _logger.Info($"FindEmail RequestXml: {body}");
                 req = FindEmailDTORequest.GetRequestFromXml(body);
+            }
             else
+            {
+                _logger.Info($"FindEmail RequestJson: {body}");
                 req = FindEmailDTORequest.GetRequestFromJson(body);
+            }
+
             var holderInfo = new HolderInfo();
             int res = 1;
+
             try
             {
+                _logger.Info($"FindEmail Start Processing");
                 res = _farcardProcessor.FindEmail(req.Email, ref holderInfo);
+                _logger.Info($"FindEmail Processing Complete, Result:{res}");
             }
             catch (Exception e)
             {
@@ -241,11 +307,13 @@ namespace HttpFarcardService
             if (RequestIsXml(context))
             {
                 var result = resp.ToXml(_encoding);
+                _logger.Info($"FindEmail ResponseXml: {result}");
                 WriteContent(context, result, "text/xml");
             }
             else
             {
                 var result = resp.ToJson();
+                _logger.Info($"FindEmail ResponseJson: {result}");
                 WriteContent(context, result, "text/json");
             }
         }
@@ -255,28 +323,44 @@ namespace HttpFarcardService
             try
             {
                 GetCardImageExDTORequest req;
+
                 if (RequestIsXml(context))
+                {
+                    _logger.Info($"GetCardImageEx RequestXml: {body}");
                     req = GetCardImageExDTORequest.GetRequestFromXml(body);
+                }
                 else
+                {
+                    _logger.Info($"GetCardImageEx RequestJson: {body}");
                     req = GetCardImageExDTORequest.GetRequestFromJson(body);
+                }
 
                 var textInfo = new TextInfo();
+                _logger.Info("GetCardImageEx Start Processing");
                 var res = _farcardProcessor.GetCardImageEx(req.CardCode, ref textInfo);
+                _logger.Info($"GetCardImageEx Processing Complete, Result:{res}");
                 if (res != 0)
                     throw new Exception("Card or image not found");
                 var file = new FileInfo(textInfo.Text);
+
+                _logger.Info($"GetCardImageEx PhotoFile FullPath:{file.FullName}");
+
                 if (!file.Exists)
+                {
+                    _logger.Info($"GetCardImageEx PhotoFile Path {file.FullName} not Exist ");
                     throw new FileNotFoundException(textInfo.Text);
+                }
 
                 using (var ms = new MemoryStream())
                 {
                     using (var sr = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
                         sr.CopyTo(ms);
-                    var buf = ms.ToArray();
+                    var imageBuffer = ms.ToArray();
 
                     context.Response.ContentType = "image/jpg";
-                    context.Response.ContentLength64 = buf.Length;
-                    context.Response.OutputStream.Write(buf, 0, buf.Length);
+                    context.Response.ContentLength64 = imageBuffer.Length;
+                    context.Response.OutputStream.Write(imageBuffer, 0, imageBuffer.Length);
+                    _logger.Info($"GetCardImageEx Response Photo {Convert.ToBase64String(imageBuffer)}");
                 }
 
             }
@@ -287,11 +371,13 @@ namespace HttpFarcardService
                 if (RequestIsXml(context))
                 {
                     var result = resp.ToXml(_encoding);
+                    _logger.Error($"GetCardImageEx ResponseXml{result}", ex);
                     WriteContent(context, result, "text/xml");
                 }
                 else
                 {
                     var result = resp.ToJson();
+                    _logger.Error($"GetCardImageEx ResponseJson{result}", ex);
                     WriteContent(context, result, "text/json");
                 }
             }
@@ -306,7 +392,7 @@ namespace HttpFarcardService
             response.ContentType = contentType + "; charset=" + _encoding.WebName;
             response.ContentLength64 = buf.Length;
 
-            _logger.Trace($"\t {message}");
+            _logger.Info($"Write Content: \t {message} by {context.Request.Url}");
 
             response.OutputStream.Write(buf, 0, buf.Length);
         }
@@ -318,16 +404,16 @@ namespace HttpFarcardService
                context.Request.ContentType == null)
                 return false;
 
-            return context.Request.ContentType.Contains("xml");
+            return context.Request.ContentType.ToLower().Contains("xml");
         }
 
         public void Stop()
         {
             try
             {
-                _logger.Trace("Stopping...");
+                _logger.Info("Stopping...");
                 DisposeServer();
-                _logger.Trace("Stoped");
+                _logger.Info("Stopped");
                 _farcardProcessor?.Done();
             }
             catch (Exception ex)

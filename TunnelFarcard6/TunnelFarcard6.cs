@@ -19,7 +19,7 @@ namespace TunnelFarcard6
     public class TunnelFarcard : IFarcards6,
         IDisposable
     {
-        private readonly TunnelFarcardSettings _settings;
+        private readonly TunnelFarcard6Settings _settings;
 
         private readonly Logger<TunnelFarcard> _logger;
 
@@ -43,9 +43,9 @@ namespace TunnelFarcard6
 
         public TunnelFarcard()
         {
-            _settings = TunnelFarcardSettings.GetSettings();
+            _settings = TunnelFarcard6Settings.GetSettings();
             _logger = new Logger<TunnelFarcard>(_settings.LogLevel);
-            _logger.GetLogger().Info($"Start TunnelFarcard: version {GetType().Assembly.GetName().Version}");
+            _logger.Info($"Start TunnelFarcard: version {GetType().Assembly.GetName().Version}");
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             try
             {
@@ -53,9 +53,9 @@ namespace TunnelFarcard6
                 if (string.IsNullOrWhiteSpace(_moduleName))
                     throw new ArgumentNullException(nameof(_settings.PathDll), "Не задан путь к библиотеке");
 
-                var finfo = new FileInfo(_moduleName);
-                _pathModule = finfo.FullName;
-                hModule = NativeWin32.LoadLibrary(finfo.FullName);
+                var fInfo = new FileInfo(_moduleName);
+                _pathModule = fInfo.FullName;
+                hModule = NativeWin32.LoadLibrary(fInfo.FullName);
                 if (hModule == IntPtr.Zero)
                 {
                     var err = NativeWin32.GetLastError();
@@ -63,20 +63,39 @@ namespace TunnelFarcard6
                     throw new NullReferenceException($"Не удалось загрузить библиотеку {_settings.PathDll} errorCode: {err} {ex.Message}");
                 }
 
+                _logger.Trace($"GetNativeDelegate:{nameof(FarcardContract.GetCardInfoEx)}");
                 _getCardInfoEx = NativeWin32.GetDelegate<GetCardInfoEx>(hModule, nameof(FarcardContract.GetCardInfoEx), true);
+
+                _logger.Trace($"GetNativeDelegate:{nameof(FarcardContract.TransactionsEx)}");
                 _transactionsEx = NativeWin32.GetDelegate<TransactionsEx>(hModule, nameof(FarcardContract.TransactionsEx), true);
+
+                _logger.Trace($"GetNativeDelegate:{nameof(FarcardContract.Init)}");
                 _init = NativeWin32.GetDelegate<Init>(hModule, nameof(FarcardContract.Init));
+
+                _logger.Trace($"GetNativeDelegate:{nameof(FarcardContract.Done)}");
                 _done = NativeWin32.GetDelegate<Done>(hModule, nameof(FarcardContract.Done));
+
+                _logger.Trace($"GetNativeDelegate:{nameof(FarcardContract.GetCardImageEx)}");
                 _getCardImageEx = NativeWin32.GetDelegate<GetCardImageEx>(hModule, nameof(FarcardContract.GetCardImageEx));
+
+                _logger.Trace($"GetNativeDelegate:{nameof(FarcardContract.FindCardsL)}");
                 _findCardsL = NativeWin32.GetDelegate<FindCardsL>(hModule, nameof(FarcardContract.FindCardsL));
+
+                _logger.Trace($"GetNativeDelegate:{nameof(FarcardContract.FindEmail)}");
                 _findEmail = NativeWin32.GetDelegate<FindEmail>(hModule, nameof(FarcardContract.FindEmail));
+
+                _logger.Trace($"GetNativeDelegate:{nameof(FarcardContract.FindAccountsByKind)}");
                 _findAccountsByKind = NativeWin32.GetDelegate<FindAccountsByKind>(hModule, nameof(FarcardContract.FindAccountsByKind));
+
+                _logger.Trace($"GetNativeDelegate:{nameof(FarcardContract.GetDiscLevelInfoL)}");
                 _getDiscLevelInfoL = NativeWin32.GetDelegate<GetDiscLevelInfoL>(hModule, nameof(FarcardContract.GetDiscLevelInfoL));
+
+                _logger.Trace($"GetNativeDelegate:{nameof(FarcardContract.AnyInfo)}");
                 _anyInfo = NativeWin32.GetDelegate<AnyInfo>(hModule, nameof(FarcardContract.AnyInfo));
 
                 var app = Process.GetCurrentProcess();
 
-                _logger.Trace($"start app {app.Id} : {app.ProcessName}");
+                _logger.Info($"start app {app.Id} : {app.ProcessName}");
 
                 foreach (ProcessModule module in app.Modules)
                 {
@@ -86,6 +105,11 @@ namespace TunnelFarcard6
             catch (Exception ex)
             {
                 _logger.Error(ex.ToString());
+                var err = NativeWin32.GetLastError();
+                if (err != 0)
+                {
+                    _logger.Error(new Win32Exception(err).Message);
+                }
                 Dispose();
                 throw ex;
             }
@@ -98,7 +122,10 @@ namespace TunnelFarcard6
             {
                 if (_init != null)
                 {
+                    _logger.Info("Init Library Begin");
                     _init();
+                    _logger.Info("Init Library Complete");
+
                     var err = NativeWin32.GetLastError();
                     if (err != 0)
                         throw new Win32Exception(err);
@@ -113,6 +140,11 @@ namespace TunnelFarcard6
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             _logger.Error($"unhandledExc : {(e.ExceptionObject as Exception)}");
+            var err = NativeWin32.GetLastError();
+            if (err != 0)
+            {
+                _logger.Error(new Win32Exception(err).Message);
+            }
         }
 
         public void FindCardsL(string findText, CBFind cbFind, IntPtr backPtr)
@@ -120,11 +152,21 @@ namespace TunnelFarcard6
             try
             {
                 if (_findCardsL != null)
+                {
+                    _logger.Info($"FindCardsL Library Begin");
                     _findCardsL(findText, cbFind, backPtr);
+                    _logger.Info($"FindCardsL Library Complete");
+                }
+
             }
             catch (Exception ex)
             {
                 _logger.Error(ex.ToString());
+                var err = NativeWin32.GetLastError();
+                if (err != 0)
+                {
+                    _logger.Error(new Win32Exception(err).Message);
+                }
             }
         }
 
@@ -133,7 +175,17 @@ namespace TunnelFarcard6
             try
             {
                 if (_findAccountsByKind != null)
+                {
+                    var cbFindAddress = Marshal.GetFunctionPointerForDelegate(cbFind);
+                    _logger.Info($"FindAccountsByKind Library Begin kind:{kind}, findText:{findText}, cbFind:{cbFindAddress.ToInt32()}, backPtr:{backPtr.ToInt32()}");
                     _findAccountsByKind(kind, findText, cbFind, backPtr);
+                    _logger.Info($"FindAccountsByKind Library Complete");
+                }
+                var err = NativeWin32.GetLastError();
+                if (err != 0)
+                {
+                    _logger.Error(new Win32Exception(err).Message);
+                }
             }
             catch (Exception ex)
             {
@@ -149,10 +201,14 @@ namespace TunnelFarcard6
                 IntPtr pOutBuf = IntPtr.Zero;
                 UInt32 outLen = 0;
                 if (inpBuf == null)
+                {
                     inpBuf = new byte[0];
+                }
 
                 if (_anyInfo != null)
+                {
                     _anyInfo(inpBuf, (UInt32)inpBuf.Length, out pOutBuf, out outLen);
+                }
 
                 if (pOutBuf != IntPtr.Zero && outLen > 0)
                 {
@@ -176,6 +232,11 @@ namespace TunnelFarcard6
             catch (Exception ex)
             {
                 _logger.Error(ex.ToString());
+                var err = NativeWin32.GetLastError();
+                if (err != 0)
+                {
+                    _logger.Error(new Win32Exception(err).Message);
+                }
             }
         }
 
@@ -185,11 +246,18 @@ namespace TunnelFarcard6
             try
             {
                 if (_getDiscLevelInfoL != null)
+                {
                     res = _getDiscLevelInfoL(account, info);
+                }
             }
             catch (Exception ex)
             {
                 _logger.Error(ex.ToString());
+                var err = NativeWin32.GetLastError();
+                if (err != 0)
+                {
+                    _logger.Error(new Win32Exception(err).Message);
+                }
             }
             return res;
         }
@@ -200,11 +268,18 @@ namespace TunnelFarcard6
             try
             {
                 if (_getCardImageEx != null)
+                {
                     res = _getCardImageEx(card, info);
+                }
             }
             catch (Exception ex)
             {
                 _logger.Error(ex.ToString());
+                var err = NativeWin32.GetLastError();
+                if (err != 0)
+                {
+                    _logger.Error(new Win32Exception(err).Message);
+                }
             }
 
             return res;
@@ -216,11 +291,18 @@ namespace TunnelFarcard6
             try
             {
                 if (_findEmail != null)
-                    return _findEmail(email, holderInfo);
+                {
+                    res = _findEmail(email, holderInfo);
+                }
             }
             catch (Exception ex)
             {
                 _logger.Error(ex.ToString());
+                var err = NativeWin32.GetLastError();
+                if (err != 0)
+                {
+                    _logger.Error(new Win32Exception(err).Message);
+                }
             }
 
             return res;
@@ -275,11 +357,11 @@ namespace TunnelFarcard6
             catch (Exception ex)
             {
                 _logger.Error(ex.ToString());
-            }
-            catch
-            {
                 var err = NativeWin32.GetLastError();
-                _logger.Error(new Win32Exception(err).Message);
+                if (err != 0)
+                {
+                    _logger.Error(new Win32Exception(err).Message);
+                }
             }
 
             return res;
@@ -351,12 +433,13 @@ namespace TunnelFarcard6
             catch (Exception ex)
             {
                 _logger.Error(ex.ToString());
-            }
-            catch
-            {
                 var err = NativeWin32.GetLastError();
-                _logger.Error(new Win32Exception(err).Message);
+                if (err != 0)
+                {
+                    _logger.Error(new Win32Exception(err).Message);
+                }
             }
+
             finally
             {
                 if (nativeArray != IntPtr.Zero)
@@ -370,7 +453,14 @@ namespace TunnelFarcard6
                     IntPtr ptr = listIntPtrs[i];
                     if (ptr != IntPtr.Zero)
                     {
-                        Marshal.DestroyStructure(ptr, typeof(TransactionInfoEx));
+                        try
+                        {
+                            Marshal.DestroyStructure(ptr, typeof(TransactionInfoEx));
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error(ex.ToString());
+                        }
                         Marshal.FreeCoTaskMem(ptr);
                         ptr = IntPtr.Zero;
                     }
@@ -424,6 +514,11 @@ namespace TunnelFarcard6
             catch (Exception ex)
             {
                 _logger.Error(ex.ToString());
+                var err = NativeWin32.GetLastError();
+                if (err != 0)
+                {
+                    _logger.Error(new Win32Exception(err).Message);
+                }
             }
         }
     }

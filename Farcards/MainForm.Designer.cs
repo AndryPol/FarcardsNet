@@ -42,6 +42,7 @@
             this.FindEmailButton = new System.Windows.Forms.Button();
             this.EmailBox = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.TestCheckButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.CardNumber)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ObjCode)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RestCode)).BeginInit();
@@ -205,11 +206,22 @@
             this.label4.TabIndex = 10;
             this.label4.Text = "Email";
             // 
+            // TestCheckButton
+            // 
+            this.TestCheckButton.Location = new System.Drawing.Point(146, 229);
+            this.TestCheckButton.Name = "TestCheckButton";
+            this.TestCheckButton.Size = new System.Drawing.Size(101, 23);
+            this.TestCheckButton.TabIndex = 11;
+            this.TestCheckButton.Text = "TestCheck";
+            this.TestCheckButton.UseVisualStyleBackColor = true;
+            this.TestCheckButton.Click += new System.EventHandler(this.TestCheckButton_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(266, 235);
+            this.ClientSize = new System.Drawing.Size(266, 260);
+            this.Controls.Add(this.TestCheckButton);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.EmailBox);
             this.Controls.Add(this.FindEmailButton);
@@ -258,6 +270,7 @@
         private System.Windows.Forms.Button FindEmailButton;
         private System.Windows.Forms.TextBox EmailBox;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button TestCheckButton;
     }
 }
 
