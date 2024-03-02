@@ -107,7 +107,7 @@ namespace FarcardNet {
 				_logger->Info("CardInfoEx Before Invoke: " + cardInfo->ToStringLog());
 				if (inpBuf->Length > 0)
 				{
-					_logger->Info("InpBuf: " + System::Text::Encoding::UTF8->GetString(inpBuf));
+					_logger->Info("InpBuf: " + Text::Encoding::UTF8->GetString(inpBuf));
 				}
 				_logger->Info("Plugin GetCardInfoEx Invoke");
 				res = _farcard6->GetCardInfoEx(card, restaurant, unitNo, cardInfo, inpBuf, inpKind, outBuf, outKind);
@@ -158,7 +158,7 @@ namespace FarcardNet {
 
 				Marshal::Copy(pInpBuf, inpBuf, 0, inpLen);
 
-				_logger->Info("InpBuf" + Text::Encoding::GetString(inpBuf));
+				_logger->Info("InpBuf" + Text::Encoding::UTF8->GetString(inpBuf));
 
 				List<TransactionInfoEx^>% listTr = List<TransactionInfoEx^>();
 				_logger->Info("Copy native: " + pList.ToInt32() + " TransactionExList to object, count: " + count);
@@ -344,7 +344,7 @@ namespace FarcardNet {
 
 				if (!Object::ReferenceEquals(outBuf, nullptr) && outBuf->Length > 0)
 				{
-					_logger->Info("OutBuf: " + Text::Encoding::UTF8->56(outBuf));
+					_logger->Info("OutBuf: " + Text::Encoding::UTF8->GetString(outBuf));
 				}
 
 				outLen = !Object::ReferenceEquals(outBuf, nullptr) ? outBuf->Length : 0;
