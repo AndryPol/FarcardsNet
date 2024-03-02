@@ -5,6 +5,9 @@ namespace FarcardContract.Data.BufferData
 {
     public class CheckDiscounts
     {
+        /// <summary>
+        /// Количество записей
+        /// </summary>
         [XmlAttribute("count")]
         public int Count
         {
@@ -12,6 +15,9 @@ namespace FarcardContract.Data.BufferData
             set { }
         }
 
+        /// <summary>
+        /// Информация о скидках
+        /// </summary>
         [XmlElement("DISCOUNT")]
         public List<Discount> Discounts { get; set; }
     }

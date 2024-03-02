@@ -5,6 +5,9 @@ namespace FarcardContract.Data.BufferData
 {
     public class CheckPayments
     {
+        /// <summary>
+        /// Количество записей
+        /// </summary>
         [XmlAttribute("count")]
         public int Count
         {
@@ -12,6 +15,9 @@ namespace FarcardContract.Data.BufferData
             set { }
         }
 
+        /// <summary>
+        /// Информация об оплатах
+        /// </summary>
         [XmlElement("PAYMENT")]
         public List<Payment> Payments { get; set; }
     }

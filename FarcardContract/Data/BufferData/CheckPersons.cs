@@ -10,6 +10,9 @@ namespace FarcardContract.Data.BufferData
 
     public class CheckPersons
     {
+        /// <summary>
+        /// Количество записей
+        /// </summary>
         [XmlAttribute("count")]
         public int Count
         {
@@ -17,6 +20,9 @@ namespace FarcardContract.Data.BufferData
             set { }
         }
 
+        /// <summary>
+        /// Информация о персонале(кассир/официант/администратор и т.д.)
+        /// </summary>
         [XmlElement("PERSON")]
         public List<Person> Persons { get; set; }
     }

@@ -5,6 +5,9 @@ namespace FarcardContract.Data.BufferData
 {
     public class Discounts
     {
+        /// <summary>
+        /// Количество записей
+        /// </summary>
         [XmlAttribute("count")]
         public int Count
         {

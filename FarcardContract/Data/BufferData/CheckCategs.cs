@@ -5,6 +5,9 @@ namespace FarcardContract.Data.BufferData
 {
     public class CheckCategs
     {
+        /// <summary>
+        /// Количество записей
+        /// </summary>
         [XmlAttribute("count")]
         public int Count
         {
@@ -12,6 +15,9 @@ namespace FarcardContract.Data.BufferData
             set { }
         }
 
+        /// <summary>
+        /// Информация о категории
+        /// </summary>
         [XmlElement("CATEG")]
         public List<Categ> Categs { get; set; }
     }
