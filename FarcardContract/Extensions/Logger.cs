@@ -9,15 +9,15 @@ namespace FarcardContract
     public class Logger<T>
     {
         // LoggingConfiguration config = new LoggingConfiguration();
-        private Logger _logs = null;
-        private FileTarget _fileTarget = new FileTarget();
+        private readonly Logger _logs = null;
+        private readonly FileTarget _fileTarget = new FileTarget();
         private LogLevel _minLevel = LogLevel.Trace;
-        bool _console = false;
+        private readonly bool _console = false;
 
 
         // string ProcessName = "${processname}";
-        private string _NAMETRACE = "${basedir}/log/${shortdate}/trace.log";
-        private string _LOGNAME = "${basedir}/log/${shortdate}/" + $"{GetFormattedName(typeof(T))}.log";
+        //  private string _NAMETRACE = "${basedir}/log/${shortdate}/trace.log";
+        private readonly string _LOGNAME = "${basedir}/log/${shortdate}/" + $"{GetFormattedName(typeof(T))}.log";
 
         public void Error(string message)
         {
@@ -38,11 +38,11 @@ namespace FarcardContract
         }
 
 
-        void SetSettings()
-        {
-            _fileTarget.FileName = _LOGNAME;
-            _fileTarget.Layout = @"${longdate} ${Level} ${message}";
-        }
+        //void SetSettings()
+        //{
+        //    _fileTarget.FileName = _LOGNAME;
+        //    _fileTarget.Layout = @"${longdate} ${Level} ${message}";
+        //}
 
         public void Debug(string message)
         {
@@ -137,12 +137,13 @@ namespace FarcardContract
             _fileTarget.Name = "file" + loggername;
             var consolename = $"Console{loggername}";
             LoggingRule rul = new LoggingRule(loggername, _minLevel, _fileTarget);
-            var consoleTarget = new ConsoleTarget();
-            consoleTarget.AutoFlush = true;
-            consoleTarget.Name = loggername;
-            consoleTarget.Layout = _fileTarget.Layout;
-            consoleTarget.DetectConsoleAvailable = true;
-
+            var consoleTarget = new ConsoleTarget()
+            {
+                AutoFlush = true,
+                Name = loggername,
+                Layout = _fileTarget.Layout,
+                DetectConsoleAvailable = true,
+            };
             var consoleRule = new LoggingRule(loggername, _minLevel, consoleTarget);
 
             if (LogManager.Configuration == null)

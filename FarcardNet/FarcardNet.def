@@ -4,8 +4,10 @@ LIBRARY
 EXPORTS
 Init 
 Done 
-GetCardInfoEx 
+GetCardInfoEx
+GetCardInfoL
 TransactionsEx
+TransactionL
 GetCardImageEx
 FindEmail
 FindCardsL

@@ -1,4 +1,5 @@
-﻿using FarcardContract.Data.Farcard6;
+﻿using FarcardContract.Data.Farcard5;
+using FarcardContract.Data.Farcard6;
 
 namespace FarcardContract.Data
 {
@@ -16,6 +17,7 @@ namespace FarcardContract.Data
             cardInfoEx.Locked = YesNo.No;
             cardInfoEx.StopDate = YesNo.No;
             cardInfoEx.Deleted = YesNo.No;
+            cardInfoEx.Manager = YesNo.No;
             cardInfoEx.Account = GetDemoAccount;
             cardInfoEx.Holder = _holder;
             cardInfoEx.Summa = 1000.05m;
@@ -36,6 +38,33 @@ namespace FarcardContract.Data
             cardInfoEx.PrnMessage = "Тестовая информация для печати";
 
             return cardInfoEx;
+        }
+
+        public static CardInfoL Demo(this CardInfoL cardInfoL)
+        {
+            cardInfoL.Holy = YesNo.No;
+            cardInfoL.Grab = YesNo.No;
+            cardInfoL.Locked = YesNo.No;
+            cardInfoL.StopDate = YesNo.No;
+            cardInfoL.Deleted = YesNo.No;
+            cardInfoL.Account = GetDemoAccount;
+            cardInfoL.Holder = _holder;
+            cardInfoL.Summa = 1000.05m;
+            cardInfoL.Sum2 = 200.00m;
+            cardInfoL.Sum3 = 300.10m;
+            cardInfoL.Sum4 = 400.00m;
+            cardInfoL.Sum5 = 500.00m;
+            cardInfoL.Sum6 = 600.00m;
+            cardInfoL.Sum7 = 700.00m;
+            cardInfoL.Sum8 = 800.00m;
+            cardInfoL.DiscLimit = 900000.00m;
+            cardInfoL.Bonus = 5;
+            cardInfoL.Discount = 99;
+            cardInfoL.Unpay = 0;
+            cardInfoL.DopInfo = "Тестовая информация";
+            cardInfoL.Manager = YesNo.No;
+
+            return cardInfoL;
         }
 
         public static HolderInfo Demo(this HolderInfo holderInfo)

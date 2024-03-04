@@ -18,7 +18,7 @@ namespace FarcardContract.Data.BufferData
         public string Id { get; set; }
 
         /// <summary>
-        /// код бонуса
+        /// Код бонуса
         /// </summary>
         [XmlAttribute("code")]
         public string Code { get; set; }

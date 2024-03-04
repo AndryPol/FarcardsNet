@@ -39,6 +39,17 @@ namespace FarcardContract
     [UnmanagedFunctionPointer(CallingConvention.StdCall,
         CharSet = CharSet.Ansi,
         SetLastError = true)]
+    public delegate int GetCardInfoL(
+        [In] Int64 card,
+        [In] UInt32 restaurant,
+        [In] UInt32 unitNo,
+        [In, Out]
+        CardInfoEx cardInfo
+        );
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall,
+        CharSet = CharSet.Ansi,
+        SetLastError = true)]
     public delegate int TransactionsEx(
          UInt32 count,
         IntPtr info,
@@ -52,6 +63,22 @@ namespace FarcardContract
          [Out] out UInt32 outLen,
          [Out] out BuffKind outKind
         );
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall,
+        CharSet = CharSet.Ansi,
+        SetLastError = true)]
+    public delegate int TransactionL(
+        UInt32 account,
+        IntPtr info
+        );
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall,
+        CharSet = CharSet.Ansi,
+        SetLastError = true)]
+    public delegate int TransactionPacketL(
+        UInt32 count,
+        IntPtr info
+    );
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall,
         CharSet = CharSet.Ansi,
@@ -94,6 +121,30 @@ namespace FarcardContract
     [UnmanagedFunctionPointer(CallingConvention.StdCall,
         CharSet = CharSet.Ansi,
         SetLastError = true)]
+    public delegate int GetCardImageL(
+        Int64 card,
+        [In, Out]
+        TextInfo info);
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall,
+        CharSet = CharSet.Ansi,
+        SetLastError = true)]
+    public delegate int GetCardMessageL(
+        Int64 card,
+        [In, Out]
+        TextInfoEx info);
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall,
+        CharSet = CharSet.Ansi,
+        SetLastError = true)]
+    public delegate int GetCardMessage2L(
+        Int64 card,
+        [In, Out]
+        TextInfoEx info);
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall,
+        CharSet = CharSet.Ansi,
+        SetLastError = true)]
     public delegate void AnyInfo(
         [In,MarshalAs(UnmanagedType.LPArray,
              ArraySubType = UnmanagedType.I1,
@@ -110,6 +161,18 @@ namespace FarcardContract
         UInt32 account,
         [In, Out]
         DiscLevelInfo info);
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall,
+        CharSet = CharSet.Ansi,
+        SetLastError = true)]
+    public delegate void CheckInfoL(
+        UInt32 account,
+        [In,MarshalAs(UnmanagedType.LPArray,
+             ArraySubType = UnmanagedType.I1,
+             SizeParamIndex = 3)]
+        Byte[] inpBuf,
+        UInt32 inpLen
+        );
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall,
         CharSet = CharSet.Ansi,

@@ -16,12 +16,18 @@ namespace FarcardContract.Data.Farcard5
         
         private TransactionInfoL _info;
 
+        /// <summary>
+        /// Номер счета
+        /// </summary>
         public UInt16 Account
         {
             get { return _dwAccount; }
             set { _dwAccount = value; }
         }
 
+        /// <summary>
+        /// Транзакция 
+        /// </summary>
         public TransactionInfoL Info
         {
             get { return _info; }

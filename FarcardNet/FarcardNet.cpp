@@ -9,14 +9,89 @@ namespace FarcardNet {
 
 
 	using namespace ComponentModel;
+	using namespace Composition;
+	using namespace FarcardContract;
+	using namespace FarcardContract::Farcard5;
 	using namespace FarcardContract::Farcard6;
+	using namespace FarcardContract::Data;
+	using namespace FarcardContract::Data::Farcard5;
+	using namespace FarcardContract::Data::Farcard6;
 	using namespace Collections::Generic;
 	using namespace IO;
 
 	ref class FarcardNet {};
+	enum FarcardType
+	{
+		Farcards5,
+		Farcards6,
+		FarcardsAll
+	};
 
 	gcroot<Logger<FarcardNet^>^> _logger;
 	gcroot<IFarcards6^> _farcard6;
+	gcroot<IFarcards5^> _farcard5;
+	gcroot<IFarcards^> _farcards;
+
+	FarcardType InitFactories(FarcardNetSettings^ settings)
+	{
+		FileInfo^ file_info = nullptr;
+		_logger->Info("Library: " + settings->Library);
+		if (!String::IsNullOrWhiteSpace(settings->Library))
+		{
+			file_info = gcnew FileInfo(settings->Library);
+			_logger->Info("File path: " + file_info->FullName);
+		}
+		else
+		{
+			_logger->Info("Loads Demo Plugins");
+		}
+		_logger->Info("Load Plugin");
+
+		try
+		{
+			_logger->Info("Load Plugin Farcars5");
+			IFarcards5^ farcards5 = Farcards5Factory().GetProcessor(file_info);
+			_logger->Info("Load Plugin Farcards5 Complete");
+			_farcard5 = gcroot<IFarcards5^>();
+			_farcard5 = farcards5;
+			return Farcards5;
+		}
+		catch (CompositionException^ ex)
+		{
+			_logger->Error(ex);
+		}
+
+		try
+		{
+			_logger->Info("Load Plugin Farcars6");
+			IFarcards6^ farcards6 = Farcards6Factory().GetProcessor(file_info);
+			_logger->Info("Load Plugin Farcards6 Complete");
+			_farcard6 = gcroot<IFarcards6^>();
+			_farcard6 = farcards6;
+			return Farcards6;
+		}
+		catch (CompositionException^ ex)
+		{
+			_logger->Error(ex);
+		}
+
+		try
+		{
+			_logger->Info("Load Plugin FarcarsAll");
+			IFarcards^ farcards = FarcardsAllFactory().GetProcessor(file_info);
+			_logger->Info("Load Plugin FarcardsAll Complete");
+			_farcards = gcroot<IFarcards^>();
+			_farcards = farcards;
+			return FarcardsAll;
+		}
+		catch (CompositionException^ ex)
+		{
+			_logger->Error(ex);
+		}
+
+		throw gcnew Exception("Farcards Plugin not Initialize");
+
+	};
 
 	void Init()
 	{
@@ -33,17 +108,55 @@ namespace FarcardNet {
 				_logger->Info("File path: " + file_info->FullName);
 			}
 			_logger->Info("Load Plugin");
-			_farcard6 = gcroot<IFarcards6^>();
-			_farcard6 = Farcards6Factory().GetProcessor(file_info);
 
-			if (!Object::ReferenceEquals(_farcard6, nullptr))
+			FarcardType initType = InitFactories(settings);
+
+			switch (initType)
 			{
-				_logger->Info("Plugin: " + _farcard6->GetType()->FullName + " loaded");
+			case Farcards5:
+			{
+				if (!Object::ReferenceEquals(_farcard5, nullptr))
+				{
+					_logger->Info("Plugin farcard5: " + _farcard5->GetType()->FullName + " loaded");
 
-				_logger->Info("Plugin Init Begin");
-				_farcard6->Init();
-				_logger->Info("Plugin Init Complete");
+					_logger->Info("Plugin farcard5 Init Begin");
+					_farcard5->Init();
+					_logger->Info("Plugin farcard5 Init Complete");
+				}
+				break;
 			}
+			case Farcards6:
+			{
+				if (!Object::ReferenceEquals(_farcard6, nullptr))
+				{
+					_logger->Info("Plugin farcard6: " + _farcard6->GetType()->FullName + " loaded");
+
+					_logger->Info("Plugin farcard6 Init Begin");
+					_farcard6->Init();
+					_logger->Info("Plugin farcard6 Init Complete");
+				}
+				break;
+			}
+			default:
+			{
+				if (!Object::ReferenceEquals(_farcards, nullptr))
+				{
+					_logger->Info("Plugin farcardsAll: " + _farcards->GetType()->FullName + " loaded");
+
+					_logger->Info("Plugin farcardsAll Init Begin");
+					safe_cast<IFarcards5^>(_farcards)->Init();
+					_logger->Info("Plugin farcardsAll Init Complete");
+				}
+			}
+			}
+
+			if (Object::ReferenceEquals(_farcard5, nullptr) &&
+				Object::ReferenceEquals(_farcard6, nullptr) &&
+				Object::ReferenceEquals(_farcards, nullptr))
+			{
+				throw gcnew Exception("Plugin not initialize");
+			}
+			_logger->Info("Plugin Loaded Complete");
 		}
 		catch (Exception^ ex)
 		{
@@ -68,26 +181,77 @@ namespace FarcardNet {
 
 	void Done()
 	{
-		try
+		if (!Object::ReferenceEquals(_farcard6, nullptr))
 		{
-			_logger->Info("Done Begin");
-			if (!Object::ReferenceEquals(_farcard6, nullptr))
+			try
 			{
-				_logger->Info("Plugin Done Begin");
-				_farcard6->Done();
-				_logger->Info("Plugin Done Complete");
+				_logger->Info("Done farcards6 Begin");
+				if (!Object::ReferenceEquals(_farcard6, nullptr))
+				{
+					_logger->Info("Plugin farcards6 Done Begin");
+					_farcard6->Done();
+					_logger->Info("Plugin farcards6 Done Complete");
+				}
+				_logger->Info("Done farcards6 Complete");
 			}
-			_logger->Info("Done Complete");
+			catch (Exception^ ex)
+			{
+				_logger->Error(ex);
+			}
+			catch (...)
+			{
+				int code = GetLastError();
+				Exception% ex = Win32Exception(code);
+				_logger->Error(% ex);
+			}
 		}
-		catch (Exception^ ex)
+		if (!Object::ReferenceEquals(_farcard5, nullptr))
 		{
-			_logger->Error(ex);
+			try
+			{
+				_logger->Info("Done farcards5 Begin");
+				if (!Object::ReferenceEquals(_farcard5, nullptr))
+				{
+					_logger->Info("Plugin farcards5 Done Begin");
+					_farcard5->Done();
+					_logger->Info("Plugin farcards5 Done Complete");
+				}
+				_logger->Info("Done farcards5 Complete");
+			}
+			catch (Exception^ ex)
+			{
+				_logger->Error(ex);
+			}
+			catch (...)
+			{
+				int code = GetLastError();
+				Exception% ex = Win32Exception(code);
+				_logger->Error(% ex);
+			}
 		}
-		catch (...)
+		if (!Object::ReferenceEquals(_farcards, nullptr))
 		{
-			int code = GetLastError();
-			Exception% ex = Win32Exception(code);
-			_logger->Error(% ex);
+			try
+			{
+				_logger->Info("Done farcardsAll Begin");
+				if (!Object::ReferenceEquals(_farcards, nullptr))
+				{
+					_logger->Info("Plugin farcardsAll Done Begin");
+					safe_cast<IFarcards5^>(_farcards)->Done();
+					_logger->Info("Plugin farcardsAll Done Complete");
+				}
+				_logger->Info("Done farcardsAll Complete");
+			}
+			catch (Exception^ ex)
+			{
+				_logger->Error(ex);
+			}
+			catch (...)
+			{
+				int code = GetLastError();
+				Exception% ex = Win32Exception(code);
+				_logger->Error(% ex);
+			}
 		}
 	}
 
@@ -143,7 +307,53 @@ namespace FarcardNet {
 		return  res;
 	}
 
+	int GetCardInfoL(Int64 card, UInt32 restaurant, UInt32 unitNo, IntPtr info)
+	{
+		int res = 1;
+		try {
+			_logger->Info("GetCardInfoL Begin card: " + card + " rest: " + restaurant + " unit: " + unitNo);
 
+			CardInfoL^ cardInfo = gcnew CardInfoL();
+
+			_logger->Info("CardInfoL Before Invoke: " + cardInfo->ToStringLog());
+
+
+			if (!Object::ReferenceEquals(_farcard5, nullptr))
+			{
+				_logger->Info("Plugin farcard5 GetCardInfoL Invoke");
+				res = _farcard5->GetCardInfoL(card, restaurant, unitNo, cardInfo);
+				_logger->Info("Plugin farcard5 GetCardInfoL Invoke Complete result: " + res);
+			}
+			else if (!Object::ReferenceEquals(_farcards, nullptr))
+			{
+				_logger->Info("Plugin farcardAll GetCardInfoL Invoke");
+				res = _farcards->GetCardInfoL(card, restaurant, unitNo, cardInfo);
+				_logger->Info("Plugin farcardAll GetCardInfoL Invoke Complete result: " + res);
+			}
+
+			_logger->Info("CardInfoL After Invoke: " + cardInfo->ToStringLog());
+
+			if (res == 0)
+			{
+				_logger->Info("Save CardInfoL to native address:" + info.ToInt32());
+				Marshal::StructureToPtr(cardInfo, info, false);
+			}
+
+			_logger->Info("GetCardInfoL Complete Result: " + res);
+
+		}
+		catch (Exception^ ex)
+		{
+			_logger->Error(ex);
+		}
+		catch (...)
+		{
+			int code = GetLastError();
+			Exception% ex = Win32Exception(code);
+			_logger->Error(% ex);
+		}
+		return  res;
+	}
 
 	int TransactionsEx(UInt32 count, IntPtr pList, IntPtr pInpBuf, UInt32 inpLen, BuffKind inpKind,
 		array<Byte>^% outBuf, UInt32& outLen, BuffKind& outKind)
@@ -206,12 +416,59 @@ namespace FarcardNet {
 		return res;
 	}
 
+	int TransactionL(UInt32 account, IntPtr info)
+	{
+		int res = 1;
+		try
+		{
+			_logger->Info("TransactionEx begin");
+			_logger->Info("Copy native: " + info.ToInt32() + " TransactionL to object");
+
+			TransactionInfoL^ trInfo =
+				safe_cast<TransactionInfoL^>(
+					Marshal::PtrToStructure(info
+						,
+						TransactionInfoL::typeid)
+					);
+
+			_logger->Info("TransactionEx Item: " + trInfo->ToStringLog());
+
+			if (!Object::ReferenceEquals(_farcard5, nullptr)) {
+
+				_logger->Info("Plugin Farcard5 TransactionEx Begin");
+				res = _farcard5->TransactionL(account, trInfo);
+				_logger->Info("Plugin Farcard5 TransactionEx Complete Result: " + res);
+
+			}
+			else if (!Object::ReferenceEquals(_farcards, nullptr)) {
+
+				_logger->Info("Plugin FarcardAll TransactionEx Begin");
+				res = _farcards->TransactionL(account, trInfo);
+				_logger->Info("Plugin FarcardAll TransactionEx Complete Result: " + res);
+
+			}
+
+			_logger->Info("TransactionEx Complete Result: " + res);
+		}
+		catch (Exception^ ex)
+		{
+			_logger->Error(ex);
+		}
+		catch (...)
+		{
+			int code = GetLastError();
+			Exception% ex = Win32Exception(code);
+			_logger->Error(% ex);
+		}
+		return res;
+	}
+
 	int GetCardImageEx(Int64 card, IntPtr pInfo)
 	{
 		int res = 1;
 		try
 		{
-			_logger->Info("GetCardImage card:" + card);
+			_logger->Info("GetCardImageEx card:" + card);
 			if (!Object::ReferenceEquals(_farcard6, nullptr)) {
 
 				TextInfo^ info = gcnew TextInfo();

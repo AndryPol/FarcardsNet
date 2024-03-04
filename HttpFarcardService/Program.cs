@@ -69,10 +69,12 @@ namespace HttpFarcardService
         static void StartProcess(string[] Args)
         {
             string args = String.Join(" ", Args);
-            ProcessStartInfo processInfo = new ProcessStartInfo();
-            processInfo.Verb = "runas";
-            processInfo.FileName = Application.ExecutablePath;
-            processInfo.Arguments = args;
+            ProcessStartInfo processInfo = new ProcessStartInfo
+            {
+                Verb = "runas",
+                FileName = Application.ExecutablePath,
+                Arguments = args
+            };
             try
             {
                 Process.Start(processInfo);

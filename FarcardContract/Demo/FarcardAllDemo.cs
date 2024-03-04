@@ -1,24 +1,20 @@
-﻿using FarcardContract.Data;
-using FarcardContract.Data.Farcard6;
-using FarcardContract.Farcard5;
-using FarcardContract.Farcard6;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using FarcardContract.Data;
+using FarcardContract.Data.Farcard5;
+using FarcardContract.Data.Farcard6;
+using FarcardContract.Demo.Farcard5;
 using FarcardContract.Demo.Farcard6;
 
-namespace FarcardContract
+namespace FarcardContract.Demo
 {
     [Export(typeof(IFarcards))]
     internal class FarcardAllDemo : IFarcards
     {
         private readonly Farcard6Demo _farcard6Demo = new Farcard6Demo();
         private readonly Farcard5Demo _farcard5Demo = new Farcard5Demo();
-        private Logger<FarcardAllDemo> _logger = new Logger<FarcardAllDemo>();
-        public FarcardAllDemo()
-        {
-
-        }
+        private readonly Logger<FarcardAllDemo> _logger = new Logger<FarcardAllDemo>();
 
         public void Init()
         {
@@ -60,6 +56,21 @@ namespace FarcardContract
             return res;
         }
 
+        public int GetCardInfoL(ulong card, uint restaurant, uint unitNo, ref CardInfoL cardInfo)
+        {
+            var res = 1;
+            try
+            {
+                res = _farcard5Demo.GetCardInfoL(card, restaurant, unitNo, ref cardInfo);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+
+            return res;
+        }
+
         public int TransactionsEx(List<TransactionInfoEx> transactionInfo, Byte[] inpBuf, BuffKind inpKind, out byte[] outBuf, out BuffKind outKind)
         {
 
@@ -69,6 +80,20 @@ namespace FarcardContract
             try
             {
                 res = _farcard6Demo.TransactionsEx(transactionInfo, inpBuf, inpKind, out outBuf, out outKind);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+            return res;
+        }
+
+        public int TransactionL(uint account, TransactionInfoL transactionInfo)
+        {
+            var res = 1;
+            try
+            {
+                res = _farcard5Demo.TransactionL(account, transactionInfo);
             }
             catch (Exception ex)
             {
@@ -176,5 +201,7 @@ namespace FarcardContract
             }
             return res;
         }
+
+
     }
 }

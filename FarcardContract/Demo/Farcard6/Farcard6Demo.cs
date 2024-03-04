@@ -15,7 +15,7 @@ namespace FarcardContract.Demo.Farcard6
     [Export(typeof(IFarcards6))]
     public class Farcard6Demo : IFarcards6
     {
-        Logger<Farcard6Demo> _logger = new Logger<Farcard6Demo>();
+        readonly Logger<Farcard6Demo> _logger = new Logger<Farcard6Demo>();
         bool UI = false;
         public void Init()
         {
@@ -30,34 +30,34 @@ namespace FarcardContract.Demo.Farcard6
                     _logger.Trace($"Loaded modules: {module.ModuleName} {module.EntryPointAddress}");
                 }
                 _logger.Trace("Load Demo Processor");
-                //UI = Environment.UserInteractive;
-                //if (UI)
-                //{
+                UI = Environment.UserInteractive;
+                if (UI)
+                {
                 //    var t = new Thread(startform);
                 //    t.IsBackground = false;
                 //    t.SetApartmentState(ApartmentState.STA);
                 //    t.Start();
                 //    Thread.Sleep(100);
-                //}
+                }
             }
             catch { }
             _logger.Trace("End init");
         }
 
-        void startform()
-        {
-            //var m = new Test();
-            //m.FormClosed += M_FormClosed;
+        //void startform()
+        //{
+        //    //var m = new Test();
+        //    //m.FormClosed += FormClosed;
 
-            //Application.Run(m);
+        //    //Application.Run(m);
 
 
-        }
+        //}
 
-        private void M_FormClosed(object sender, FormClosedEventArgs e)
+        private void FormClosed(object sender, FormClosedEventArgs e)
         {
             var process = Process.GetCurrentProcess();
-            var m = process.MainModule;
+            // var m = process.MainModule;
 
             // process.CloseMainWindow();
             // process.WaitForExit();
@@ -74,10 +74,10 @@ namespace FarcardContract.Demo.Farcard6
             out byte[] outBuf, out BuffKind outKind)
         {
 
-            
+
             outBuf = null;
             outKind = 0;
-            _logger.Trace("GetCardInfoDemo");
+            _logger.Trace("GetCardInfoExDemo");
 
             var inputXml = Encoding.UTF8.GetString(inpBuf);
             _logger.Trace($"InpBuf {inputXml}");
@@ -101,7 +101,7 @@ namespace FarcardContract.Demo.Farcard6
         {
             outBuf = null;
             outKind = 0;
-            _logger.Trace("TransactionDemo");
+            _logger.Trace("TransactionExDemo");
             var inputXml = Encoding.UTF8.GetString(inpBuf);
             _logger.Trace($"InpBuf {inputXml}");
 

@@ -7,7 +7,7 @@ namespace FarcardContract.Data
     [StructLayout(LayoutKind.Sequential,CharSet = CharSet.Ansi, Pack = 1,Size = 258)]
     public class TextInfo
     {
-        private UInt16 size = 258;
+        private readonly UInt16 size = 258;
 
         public UInt16 Sieze { get { return 0;} }
         [MarshalAs(UnmanagedType.ByValTStr,SizeConst = 256)]
