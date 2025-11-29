@@ -666,26 +666,26 @@ namespace FarcardNet {
 		return res;
 	}
 
-	int GetCardImageL(Int64 card, IntPtr pInfo)
+	int GetCardImageL(UInt32 account, IntPtr pInfo)
 	{
 		int res = 1;
 		try
 		{
-			_logger->Info("GetCardImageL card:" + card);
+			_logger->Info("GetCardImageL account:" + account);
 
 			TextInfo^ info = gcnew TextInfo();
 			_logger->Info("Info before invoke" + info->ToStringLog());
 
 			if (!Object::ReferenceEquals(_farcard5, nullptr))
 			{
-				_logger->Info("Plugin farcard6 GetCardImageL Before Card: " + card);
-				res = _farcard5->GetCardImageL(card, info);
+				_logger->Info("Plugin farcard6 GetCardImageL Before Account: " + account);
+				res = _farcard5->GetCardImageL(account, info);
 				_logger->Info("Plugin farcard6 GetCardImageL Complete Result: " + res);
 			}
 			else if (!Object::ReferenceEquals(_farcards, nullptr))
 			{
-				_logger->Info("Plugin farcardAll GetCardImageL Before Card: " + card);
-				res = _farcards->GetCardImageL(card, info);
+				_logger->Info("Plugin farcardAll GetCardImageL Before Account: " + account);
+				res = _farcards->GetCardImageL(account, info);
 				_logger->Info("Plugin farcardAll GetCardImageL Complete Result: " + res);
 			}
 			else
