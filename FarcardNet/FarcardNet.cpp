@@ -678,9 +678,9 @@ namespace FarcardNet {
 
 			if (!Object::ReferenceEquals(_farcard5, nullptr))
 			{
-				_logger->Info("Plugin farcard6 GetCardImageL Before Account: " + account);
+				_logger->Info("Plugin farcard5 GetCardImageL Before Account: " + account);
 				res = _farcard5->GetCardImageL(account, info);
-				_logger->Info("Plugin farcard6 GetCardImageL Complete Result: " + res);
+				_logger->Info("Plugin farcard5 GetCardImageL Complete Result: " + res);
 			}
 			else if (!Object::ReferenceEquals(_farcards, nullptr))
 			{
