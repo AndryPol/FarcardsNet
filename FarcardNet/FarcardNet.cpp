@@ -149,7 +149,7 @@ namespace FarcardNet {
 			{
 				throw gcnew Exception("Plugin not initialize");
 			}
-			_logger->Info("Plugin type: "+ static_cast<int>(initType) + " Loaded Complete");
+			_logger->Info("Plugin type: "+ ((int)(initType)).ToString() + " Loaded Complete");
 		}
 		catch (Exception^ ex)
 		{
